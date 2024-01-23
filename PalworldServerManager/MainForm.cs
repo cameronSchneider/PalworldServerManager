@@ -23,6 +23,8 @@ namespace PalworldServerManager
         public static string SERVER_EXE_NAME = "\\PalServer.exe";
         public static string DEFAULT_PAL_SERVER_DIR_NAME = "\\PalServer";
 
+        public static string PAL_SERVER_DIRECTORY_SUBSTRING = "PalServer - ";
+
         public static string KNOWN_SERVER_PATH = APPLICATION_DATA_PATH + KNOWN_SERVERS_FILENAME;
 
         public UserSettings userSettings = new UserSettings();
@@ -96,6 +98,33 @@ namespace PalworldServerManager
             return null;
         }
 
+        private Dictionary<string, int> GetServerNamesAndPIDs(List<ProcessPort> processes)
+        {
+            Dictionary<string, int> namesToPID = new Dictionary<string, int>();
+
+            foreach(ProcessPort process in processes)
+            {
+                Process currentProc = Process.GetProcessById(process.ProcessId);
+                string fullPath = currentProc.MainModule.FileName;
+
+                if(fullPath.Contains(PAL_SERVER_DIRECTORY_SUBSTRING)) // this substring is unique to the generated directory name
+                {
+                    // Split the path into 2 strings at the indicated substring
+                    string[] pathSplitChars = { PAL_SERVER_DIRECTORY_SUBSTRING };
+                    string[] splitPath = fullPath.Split(pathSplitChars, StringSplitOptions.None);
+
+                    // Split the result of the above into all the subdirectories. The first element will be the name of the server, as generated
+                    // by the tool when the server was created.
+                    string[] nameSplitChars = { "\\" };
+                    string[] nameSplitPath = splitPath[1].Split(nameSplitChars, StringSplitOptions.None);
+
+                    namesToPID.Add(nameSplitPath[0], process.ProcessId);
+                }
+            }
+
+            return namesToPID;
+        }
+
 
         private void LoadRunningServers()
         {
@@ -106,15 +135,20 @@ namespace PalworldServerManager
                 searchPorts.Add(Convert.ToInt32(existing.ServerPort));
             }
 
-            List<ProcessPort> serverProcs = ProcessPorts.FindPortsInMap(searchPorts, ProcessPorts.Protocol.UDP);
-            foreach (ProcessPort processPort in serverProcs)
-            {
-                KnownServerRow existing = FindKnownServerByPort(processPort.PortNumber);
 
-                if (existing != null && processPort.ProcessId > 0 && processPort.ProcessName == SERVER_PROCESS_NAME)
+            // With the list of processes listening on registered ports, extract the server name from the process paths
+            // This is necessary so we can have multiple servers registered under the same port. There is no other way to
+            // know the name of the running server by PID, process name, or port number, but we can determine it by path.
+            List<ProcessPort> serverProcs = ProcessPorts.FindPortsInMap(searchPorts, ProcessPorts.Protocol.UDP);
+            Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs);
+
+            for (int idx = 0; idx < knownServers.Count; idx++)
+            {
+                int serverProcessID = -1;
+                if(serverProcNames.TryGetValue(knownServers[idx].ServerName, out serverProcessID))
                 {
-                    existing.isRunning = true;
-                    existing.ProcessID = processPort.ProcessId;
+                    knownServers[idx].isRunning = true;
+                    knownServers[idx].ProcessID = serverProcessID;
                 }
             }
 
