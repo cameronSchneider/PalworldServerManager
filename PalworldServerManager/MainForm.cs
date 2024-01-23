@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PalworldServerManager
@@ -21,10 +20,21 @@ namespace PalworldServerManager
         public static string EXISTING_SERVERS_FILENAME = "known_servers.csv";
         public static string USER_SETTINGS_FILENAME = "usersettings.csv";
         public static string SERVER_PROCESS_NAME = "PalServer-Win64-Test-Cmd";
-        public static string SERVER_EXE_NAME = "PalServer.exe";
+        public static string SERVER_EXE_NAME = "\\PalServer.exe";
+        public static string DEFAULT_PAL_SERVER_DIR_NAME = "\\PalServer";
 
         public UserSettings userSettings = new UserSettings();
         public List<KnownServerRow> knownServers;
+
+        private static string GetFullServerPath(KnownServerRow server)
+        {
+            return server.ServerPath + DEFAULT_PAL_SERVER_DIR_NAME + " - " + server.ServerName;
+        }
+
+        private void Update(object sender, EventArgs e)
+        {
+            UpdateServerStatus();
+        }
 
         public MainForm()
         {
@@ -35,12 +45,11 @@ namespace PalworldServerManager
             string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
             LoadCSVOnDataGridView(existingServerDataFileName);
 
-
             LoadRunningServers();
 
             if (userSettings.userSettingsDict["completedSetup"] == "false")
             {
-                FirstTimeSetupForm setupForm = new FirstTimeSetupForm(userSettings);
+                SettingsForm setupForm = new SettingsForm(userSettings);
 
                 DialogResult result = setupForm.ShowDialog(this);
 
@@ -64,6 +73,11 @@ namespace PalworldServerManager
                     }
                 }
             }
+
+            System.Windows.Forms.Timer updater = new System.Windows.Forms.Timer();
+            updater.Interval = 50; //ms
+            updater.Tick += Update;
+            updater.Start();
         }
 
 
@@ -118,6 +132,16 @@ namespace PalworldServerManager
             }
         }
 
+        private void UpdateServerStatus()
+        {
+            DataTable data = (DataTable)dataGridView1.DataSource;
+
+            for(int idx = 0; idx < knownServers.Count; idx++) 
+            {
+                string value = knownServers[idx].isRunning ? "Running" : "Stopped";
+                data.Rows[idx]["Server Status"] = value;
+            }
+        }
 
         private void LoadCSVOnDataGridView(string fileName)
         {
@@ -156,15 +180,15 @@ namespace PalworldServerManager
                 string portStr = string.Format("port={0} ", server.ServerPort);
 
                 Process process = new Process();
-                process.StartInfo.FileName = server.ServerPath + "\\" + SERVER_EXE_NAME;
+                process.StartInfo.FileName = GetFullServerPath(server) + SERVER_EXE_NAME;
                 process.StartInfo.Arguments = portStr + server.ServerLaunchArgs;
                 process.StartInfo.WorkingDirectory = server.ServerPath;
 
                 if (process.Start())
                 {
-                    Thread.Sleep(3000);
+                    Thread.Sleep(5000); // Wait a few seconds for the server application to be spawned by the bootstrapper
 
-                    // The above starts the bootstrapper, which in-turn starts the server app. Reload the running servers to get that new data
+                    // Reload the running servers to get that new server application data
                     LoadRunningServerByPort(Convert.ToInt32(server.ServerPort));
                 }
             }
@@ -204,27 +228,114 @@ namespace PalworldServerManager
             }
         }
 
-        public void AddServerFinished(KnownServerRow newServerData)
+        private void CopyDirectoryRecursive(string sourceDir, string targetDir)
         {
-            string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
-            knownServers.Add(newServerData);
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourceDir, targetDir));
+            }
 
-            ServerDataTable.WriteServerToCSV(newServerData, existingServerDataFileName);
-            LoadCSVOnDataGridView(existingServerDataFileName);
-
-            dataGridView1.Update();
-            dataGridView1.Refresh();
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourceDir, targetDir), true);
+            }
         }
 
         private void addServerBtn_Click(object sender, EventArgs e)
         {
-            var addServerForm = new AddServerForm();
-            addServerForm.ShowDialog(this);
+            AddServerForm addServerForm = new AddServerForm(userSettings.userSettingsDict["defaultServerDir"]);
+            if (addServerForm.ShowDialog(this) == DialogResult.OK)
+            {
+                KnownServerRow newServer = new KnownServerRow();
+                newServer.ServerName = addServerForm.newServerName;
+                newServer.ServerPort = addServerForm.newServerPort;
+                newServer.ServerPath = addServerForm.newServerPath;
+                newServer.ServerLaunchArgs = addServerForm.newServerArgs;
+
+                knownServers.Add(newServer);
+
+                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer));
+
+                string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
+                ServerDataTable.WriteServerToCSV(newServer, existingServerDataFileName);
+                LoadCSVOnDataGridView(existingServerDataFileName);
+
+                dataGridView1.Update();
+                dataGridView1.Refresh();
+            }
         }
 
         private void removeServerBtn_Click(object sender, EventArgs e)
         {
+            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
 
+            if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
+            {
+                KnownServerRow server = knownServers[selectedRowIdx];
+
+                string promptText = string.Format("Are you sure you want to remove {0}?", server.ServerName);
+
+                ConfirmationPrompt confirmPrompt = new ConfirmationPrompt(promptText);
+                confirmPrompt.Text = "Remove Server";
+
+                DialogResult result = confirmPrompt.ShowDialog(this);
+                if(result == DialogResult.OK)
+                {
+                    Directory.Delete(GetFullServerPath(server), true);
+
+                    knownServers.Remove(server);
+
+                    string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
+                    ServerDataTable.WriteAllServersToCSV(knownServers, existingServerDataFileName);
+
+                    LoadCSVOnDataGridView(existingServerDataFileName);
+
+                    dataGridView1.Update();
+                    dataGridView1.Refresh();
+                }
+            }
+        }
+
+        private void editSettingsOption_Click(object sender, EventArgs e)
+        {
+            SettingsForm settingsForm = new SettingsForm(userSettings);
+
+            DialogResult result = settingsForm.ShowDialog(this);
+
+            if (result == DialogResult.OK)
+            {
+                userSettings.userSettingsDict["completedSetup"] = "true";
+                userSettings.userSettingsDict["steamInstallDir"] = settingsForm.steamInstallPath;
+                userSettings.userSettingsDict["defaultServerDir"] = settingsForm.defaultServerInstallPath;
+
+                userSettings.WriteUserSettings(APPLICATION_DATA_PATH + USER_SETTINGS_FILENAME);
+            }
+        }
+
+        private void importExistingServerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddServerForm addServerForm = new AddServerForm(userSettings.userSettingsDict["defaultServerDir"], true);
+            DialogResult result = addServerForm.ShowDialog(this);
+
+            if(result== DialogResult.OK) 
+            {
+                KnownServerRow newServer = new KnownServerRow();
+                newServer.ServerName = addServerForm.newServerName;
+                newServer.ServerPort = addServerForm.newServerPort;
+                newServer.ServerPath = addServerForm.newServerPath;
+                newServer.ServerLaunchArgs = addServerForm.newServerArgs;
+
+                knownServers.Add(newServer);
+
+                string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
+                ServerDataTable.WriteServerToCSV(newServer, existingServerDataFileName);
+                LoadCSVOnDataGridView(existingServerDataFileName);
+
+                dataGridView1.Update();
+                dataGridView1.Refresh();
+            }
         }
     }
 }

@@ -88,6 +88,8 @@ namespace ApplicationDataUtilities
                 }
             }
 
+            result.Columns.Add("Server Status");
+
             return result;
         }
 
@@ -109,6 +111,22 @@ namespace ApplicationDataUtilities
                 // CSVHelper secretly relies on having a newline at EOF but doesn't do it alone :)
                 writer.WriteLine();
                 writer.Flush();
+            }
+        }
+
+        public static void WriteAllServersToCSV(List<KnownServerRow> servers, string fileName)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                // Don't write the header again.
+                HasHeaderRecord = true,
+            };
+
+            using (var writer = new StreamWriter(fileName))
+            using (var csv = new CsvWriter(writer, config))
+            {
+                csv.WriteRecords(servers);
+                csv.Flush();
             }
         }
     }

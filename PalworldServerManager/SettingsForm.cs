@@ -12,14 +12,12 @@ using System.Windows.Forms;
 
 namespace PalworldServerManager
 {
-    public partial class FirstTimeSetupForm : Form
+    public partial class SettingsForm : Form
     {
         public string steamInstallPath = "";
         public string defaultServerInstallPath = "";
 
-        private static string DEFAULT_PAL_SERVER_DIR_NAME = "\\PalServer";
-
-        public FirstTimeSetupForm(UserSettings settings)
+        public SettingsForm(UserSettings settings)
         {
             InitializeComponent();
 
@@ -32,7 +30,7 @@ namespace PalworldServerManager
 
         private bool ValidateSteamInstallHasPalServerFolder()
         {
-            return Directory.Exists(steamInstallPath + DEFAULT_PAL_SERVER_DIR_NAME);
+            return Directory.Exists(steamInstallPath + MainForm.DEFAULT_PAL_SERVER_DIR_NAME);
         }
 
         private void steamInstallBtn_Click(object sender, EventArgs e)

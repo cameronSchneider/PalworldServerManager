@@ -14,29 +14,30 @@ namespace PalworldServerManager
 {
     public partial class AddServerForm : Form
     {
-        private string newServerPath = "";
-        private string newServerArgs = "";
-        private string newServerPort = "";
-        private string newServerName = "";
+        public string newServerPath = "";
+        public string newServerArgs = "";
+        public string newServerPort = "";
+        public string newServerName = "";
 
-        public KnownServerRow newServerRecord = null;
+        private string defaultInstallDir = "";
 
-        public AddServerForm()
+        public AddServerForm(string defaultDir, bool isImporting = false)
         {
             InitializeComponent();
-        }
 
-        private void completeBtn_Click(object sender, EventArgs e)
-        {
-            newServerRecord = new KnownServerRow();
-            newServerRecord.ServerPath = newServerPath;
-            newServerRecord.ServerPort = newServerPort;
-            newServerRecord.ServerName = newServerName;
-            newServerRecord.ServerLaunchArgs = newServerArgs;
+            defaultInstallDir = defaultDir;
 
-            ((MainForm)Owner).AddServerFinished(newServerRecord);
+            if(defaultInstallDir != "")
+            {
+                newServerPath = defaultInstallDir;
+                folderBrowserDialog1.SelectedPath = defaultInstallDir;
+                serverPathTxt.Text = defaultInstallDir;
+            }
 
-            this.Close();
+            if(isImporting) 
+            {
+                this.Text = "Import Existing Information";
+            }
         }
 
         private void choosePathBtn_Click(object sender, EventArgs e)

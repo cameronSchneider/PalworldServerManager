@@ -1,6 +1,6 @@
 ﻿namespace PalworldServerManager
 {
-    partial class FirstTimeSetupForm
+    partial class SettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.errorText = new System.Windows.Forms.TextBox();
             this.installText = new System.Windows.Forms.TextBox();
@@ -36,6 +37,8 @@
             this.completeBtn = new System.Windows.Forms.Button();
             this.steamText = new System.Windows.Forms.TextBox();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.steamToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.defaultToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -95,6 +98,7 @@
             this.steamInstallBtn.Size = new System.Drawing.Size(115, 56);
             this.steamInstallBtn.TabIndex = 0;
             this.steamInstallBtn.Text = "Select Steam Install Path";
+            this.steamToolTip.SetToolTip(this.steamInstallBtn, "This is where a blank install of a Dedicated Server should be.");
             this.steamInstallBtn.UseVisualStyleBackColor = true;
             this.steamInstallBtn.Click += new System.EventHandler(this.steamInstallBtn_Click);
             // 
@@ -109,6 +113,7 @@
             this.defaultDirBtn.Size = new System.Drawing.Size(115, 56);
             this.defaultDirBtn.TabIndex = 1;
             this.defaultDirBtn.Text = "Select Default Server Install Path";
+            this.defaultToolTip.SetToolTip(this.defaultDirBtn, "This is where your new server will be set up.");
             this.defaultDirBtn.UseVisualStyleBackColor = true;
             this.defaultDirBtn.Click += new System.EventHandler(this.defaultDirBtn_Click);
             // 
@@ -135,14 +140,14 @@
             this.steamText.Size = new System.Drawing.Size(416, 23);
             this.steamText.TabIndex = 3;
             // 
-            // FirstTimeSetupForm
+            // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(577, 291);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Name = "FirstTimeSetupForm";
-            this.Text = "FirstTimeSetupForm";
+            this.Name = "SettingsForm";
+            this.Text = "Edit Settings";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -159,5 +164,7 @@
         private System.Windows.Forms.Button completeBtn;
         private System.Windows.Forms.TextBox steamText;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.ToolTip steamToolTip;
+        private System.Windows.Forms.ToolTip defaultToolTip;
     }
 }

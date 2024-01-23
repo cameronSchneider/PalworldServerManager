@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.nameInput = new System.Windows.Forms.TextBox();
             this.textBox6 = new System.Windows.Forms.TextBox();
@@ -38,8 +39,9 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.completeBtn = new System.Windows.Forms.Button();
             this.portSelectTxt = new System.Windows.Forms.NumericUpDown();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.errorMsg = new System.Windows.Forms.TextBox();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.serverPathTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.portSelectTxt)).BeginInit();
             this.SuspendLayout();
@@ -122,6 +124,7 @@
             this.choosePathBtn.Size = new System.Drawing.Size(96, 41);
             this.choosePathBtn.TabIndex = 0;
             this.choosePathBtn.Text = "Choose Server Path";
+            this.serverPathTip.SetToolTip(this.choosePathBtn, "If you don\'t want this server in the default location, choose a new one.");
             this.choosePathBtn.UseVisualStyleBackColor = true;
             this.choosePathBtn.Click += new System.EventHandler(this.choosePathBtn_Click);
             // 
@@ -150,6 +153,7 @@
             // completeBtn
             // 
             this.completeBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.completeBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.completeBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.completeBtn.Location = new System.Drawing.Point(3, 247);
             this.completeBtn.Name = "completeBtn";
@@ -157,7 +161,6 @@
             this.completeBtn.TabIndex = 8;
             this.completeBtn.Text = "Done";
             this.completeBtn.UseVisualStyleBackColor = false;
-            this.completeBtn.Click += new System.EventHandler(this.completeBtn_Click);
             // 
             // portSelectTxt
             // 
@@ -213,5 +216,6 @@
         private System.Windows.Forms.TextBox serverPathTxt;
         private System.Windows.Forms.NumericUpDown portSelectTxt;
         private System.Windows.Forms.TextBox errorMsg;
+        private System.Windows.Forms.ToolTip serverPathTip;
     }
 }

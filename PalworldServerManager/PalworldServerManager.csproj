@@ -79,12 +79,18 @@
     <Compile Include="AddServerForm.Designer.cs">
       <DependentUpon>AddServerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CSVDataUtils\DataUtilities.cs" />
-    <Compile Include="FirstTimeSetupForm.cs">
+    <Compile Include="ConfirmationPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FirstTimeSetupForm.Designer.cs">
-      <DependentUpon>FirstTimeSetupForm.cs</DependentUpon>
+    <Compile Include="ConfirmationPrompt.Designer.cs">
+      <DependentUpon>ConfirmationPrompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CSVDataUtils\DataUtilities.cs" />
+    <Compile Include="SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -98,8 +104,11 @@
     <EmbeddedResource Include="AddServerForm.resx">
       <DependentUpon>AddServerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FirstTimeSetupForm.resx">
-      <DependentUpon>FirstTimeSetupForm.cs</DependentUpon>
+    <EmbeddedResource Include="ConfirmationPrompt.resx">
+      <DependentUpon>ConfirmationPrompt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
