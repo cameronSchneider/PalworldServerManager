@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -41,11 +42,18 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editSettingsOption = new System.Windows.Forms.ToolStripMenuItem();
             this.importExistingServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextMenuStart = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStop = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuEdit = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.editServerBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -78,15 +86,18 @@
             this.tableLayoutPanel2.Controls.Add(this.startServerBtn, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.stopServerBtn, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.addServerBtn, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.removeServerBtn, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.removeServerBtn, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.editServerBtn, 0, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 4;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.RowCount = 5;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(150, 435);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
@@ -95,7 +106,7 @@
             this.startServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.startServerBtn.Location = new System.Drawing.Point(3, 3);
             this.startServerBtn.Name = "startServerBtn";
-            this.startServerBtn.Size = new System.Drawing.Size(144, 102);
+            this.startServerBtn.Size = new System.Drawing.Size(144, 81);
             this.startServerBtn.TabIndex = 0;
             this.startServerBtn.Text = "Start Selected Server";
             this.startServerBtn.UseVisualStyleBackColor = true;
@@ -104,9 +115,9 @@
             // stopServerBtn
             // 
             this.stopServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stopServerBtn.Location = new System.Drawing.Point(3, 111);
+            this.stopServerBtn.Location = new System.Drawing.Point(3, 90);
             this.stopServerBtn.Name = "stopServerBtn";
-            this.stopServerBtn.Size = new System.Drawing.Size(144, 102);
+            this.stopServerBtn.Size = new System.Drawing.Size(144, 81);
             this.stopServerBtn.TabIndex = 1;
             this.stopServerBtn.Text = "Stop Selected Server";
             this.stopServerBtn.UseVisualStyleBackColor = true;
@@ -115,9 +126,9 @@
             // addServerBtn
             // 
             this.addServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.addServerBtn.Location = new System.Drawing.Point(3, 219);
+            this.addServerBtn.Location = new System.Drawing.Point(3, 177);
             this.addServerBtn.Name = "addServerBtn";
-            this.addServerBtn.Size = new System.Drawing.Size(144, 102);
+            this.addServerBtn.Size = new System.Drawing.Size(144, 81);
             this.addServerBtn.TabIndex = 2;
             this.addServerBtn.Text = "Add Server";
             this.addServerBtn.UseVisualStyleBackColor = true;
@@ -126,9 +137,9 @@
             // removeServerBtn
             // 
             this.removeServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.removeServerBtn.Location = new System.Drawing.Point(3, 327);
+            this.removeServerBtn.Location = new System.Drawing.Point(3, 351);
             this.removeServerBtn.Name = "removeServerBtn";
-            this.removeServerBtn.Size = new System.Drawing.Size(144, 105);
+            this.removeServerBtn.Size = new System.Drawing.Size(144, 81);
             this.removeServerBtn.TabIndex = 3;
             this.removeServerBtn.Text = "Remove Selected Server";
             this.removeServerBtn.UseVisualStyleBackColor = true;
@@ -185,7 +196,7 @@
             // editSettingsOption
             // 
             this.editSettingsOption.Name = "editSettingsOption";
-            this.editSettingsOption.Size = new System.Drawing.Size(180, 22);
+            this.editSettingsOption.Size = new System.Drawing.Size(189, 22);
             this.editSettingsOption.Text = "Edit Settings";
             this.editSettingsOption.Click += new System.EventHandler(this.editSettingsOption_Click);
             // 
@@ -195,6 +206,56 @@
             this.importExistingServerToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.importExistingServerToolStripMenuItem.Text = "Import Existing Server";
             this.importExistingServerToolStripMenuItem.Click += new System.EventHandler(this.importExistingServerToolStripMenuItem_Click);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contextMenuStart,
+            this.contextMenuStop,
+            this.contextMenuEdit,
+            this.contextMenuRemove});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.contextMenuStrip1.Size = new System.Drawing.Size(118, 92);
+            // 
+            // contextMenuStart
+            // 
+            this.contextMenuStart.Name = "contextMenuStart";
+            this.contextMenuStart.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuStart.Text = "Start";
+            this.contextMenuStart.Click += new System.EventHandler(this.contextMenuStart_Click);
+            // 
+            // contextMenuStop
+            // 
+            this.contextMenuStop.Name = "contextMenuStop";
+            this.contextMenuStop.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuStop.Text = "Stop";
+            this.contextMenuStop.Click += new System.EventHandler(this.contextMenuStop_Click);
+            // 
+            // contextMenuEdit
+            // 
+            this.contextMenuEdit.Name = "contextMenuEdit";
+            this.contextMenuEdit.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuEdit.Text = "Edit";
+            this.contextMenuEdit.Click += new System.EventHandler(this.contextMenuEdit_Click);
+            // 
+            // contextMenuRemove
+            // 
+            this.contextMenuRemove.Name = "contextMenuRemove";
+            this.contextMenuRemove.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuRemove.Text = "Remove";
+            this.contextMenuRemove.Click += new System.EventHandler(this.contextMenuRemove_Click);
+            // 
+            // editServerBtn
+            // 
+            this.editServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editServerBtn.Location = new System.Drawing.Point(3, 264);
+            this.editServerBtn.Name = "editServerBtn";
+            this.editServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.editServerBtn.TabIndex = 4;
+            this.editServerBtn.Text = "Edit Selected Server";
+            this.editServerBtn.UseVisualStyleBackColor = true;
+            this.editServerBtn.Click += new System.EventHandler(this.editServerBtn_Click);
             // 
             // MainForm
             // 
@@ -211,6 +272,7 @@
             this.tableLayoutPanel3.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -229,6 +291,12 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editSettingsOption;
         private System.Windows.Forms.ToolStripMenuItem importExistingServerToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem contextMenuStart;
+        private System.Windows.Forms.ToolStripMenuItem contextMenuStop;
+        private System.Windows.Forms.ToolStripMenuItem contextMenuEdit;
+        private System.Windows.Forms.ToolStripMenuItem contextMenuRemove;
+        private System.Windows.Forms.Button editServerBtn;
     }
 }
 

@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.promptTextBox = new System.Windows.Forms.TextBox();
-            this.confirmBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.dneyBtn = new System.Windows.Forms.Button();
+            this.confirmBtn = new System.Windows.Forms.Button();
+            this.promptTextBox = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -42,8 +42,8 @@
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.promptTextBox, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.promptTextBox, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -52,29 +52,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(285, 94);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // promptTextBox
-            // 
-            this.promptTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.promptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.promptTextBox.Location = new System.Drawing.Point(3, 17);
-            this.promptTextBox.Name = "promptTextBox";
-            this.promptTextBox.ReadOnly = true;
-            this.promptTextBox.Size = new System.Drawing.Size(279, 13);
-            this.promptTextBox.TabIndex = 0;
-            this.promptTextBox.Text = "Press Yes to Confirm";
-            this.promptTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // confirmBtn
-            // 
-            this.confirmBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.confirmBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.confirmBtn.Location = new System.Drawing.Point(3, 3);
-            this.confirmBtn.Name = "confirmBtn";
-            this.confirmBtn.Size = new System.Drawing.Size(133, 35);
-            this.confirmBtn.TabIndex = 0;
-            this.confirmBtn.Text = "Yes";
-            this.confirmBtn.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2
             // 
@@ -103,6 +80,29 @@
             this.dneyBtn.Text = "No";
             this.dneyBtn.UseVisualStyleBackColor = true;
             // 
+            // confirmBtn
+            // 
+            this.confirmBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.confirmBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.confirmBtn.Location = new System.Drawing.Point(3, 3);
+            this.confirmBtn.Name = "confirmBtn";
+            this.confirmBtn.Size = new System.Drawing.Size(133, 35);
+            this.confirmBtn.TabIndex = 0;
+            this.confirmBtn.Text = "Yes";
+            this.confirmBtn.UseVisualStyleBackColor = true;
+            // 
+            // promptTextBox
+            // 
+            this.promptTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.promptTextBox.AutoSize = true;
+            this.promptTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.promptTextBox.Location = new System.Drawing.Point(3, 15);
+            this.promptTextBox.Name = "promptTextBox";
+            this.promptTextBox.Size = new System.Drawing.Size(279, 17);
+            this.promptTextBox.TabIndex = 2;
+            this.promptTextBox.Text = "Press Yes to Confirm";
+            this.promptTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // ConfirmationPrompt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -122,9 +122,9 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.TextBox promptTextBox;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Button dneyBtn;
         private System.Windows.Forms.Button confirmBtn;
+        private System.Windows.Forms.Label promptTextBox;
     }
 }

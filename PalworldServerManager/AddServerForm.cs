@@ -21,11 +21,19 @@ namespace PalworldServerManager
 
         private string defaultInstallDir = "";
 
-        public AddServerForm(string defaultDir, bool isImporting = false)
+        public class AddServerFormOptions
+        {
+            public string defaultDir = "";
+            public bool isImportMenu = false;
+            public bool isEditMenu = false;
+            public KnownServerRow editData;
+        }
+
+        public AddServerForm(AddServerFormOptions options)
         {
             InitializeComponent();
 
-            defaultInstallDir = defaultDir;
+            defaultInstallDir = options.defaultDir;
 
             if(defaultInstallDir != "")
             {
@@ -34,10 +42,31 @@ namespace PalworldServerManager
                 serverPathTxt.Text = defaultInstallDir;
             }
 
-            if(isImporting) 
+            if(options.isImportMenu) 
             {
                 this.Text = "Import Existing Information";
             }
+            else if(options.isEditMenu) 
+            {
+                SetupEditMenu(options.editData);
+            }
+        }
+
+        private void SetupEditMenu(KnownServerRow dataToUse)
+        {
+            this.Text = "Edit Server Information";
+
+            newServerPath = dataToUse.ServerPath;
+            newServerName = dataToUse.ServerName;
+            newServerPort = dataToUse.ServerPort;
+            newServerArgs = dataToUse.ServerLaunchArgs;
+
+            serverPathTxt.Text = dataToUse.ServerPath;
+            nameInput.Text = dataToUse.ServerName;
+            portSelectTxt.Text = dataToUse.ServerPort;
+            argsInput.Text = dataToUse.ServerLaunchArgs;
+
+            folderBrowserDialog1.SelectedPath = dataToUse.ServerPath;
         }
 
         private void choosePathBtn_Click(object sender, EventArgs e)

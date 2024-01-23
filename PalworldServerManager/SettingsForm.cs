@@ -48,7 +48,6 @@ namespace PalworldServerManager
                     completeBtn.Enabled = false;
                 }
             }
-
         }
 
         private void defaultDirBtn_Click(object sender, EventArgs e)
@@ -58,7 +57,6 @@ namespace PalworldServerManager
                 defaultServerInstallPath = folderBrowserDialog1.SelectedPath;
                 installText.Text = defaultServerInstallPath;
             }
-
         }
     }
 }

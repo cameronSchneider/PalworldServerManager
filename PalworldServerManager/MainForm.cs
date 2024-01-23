@@ -17,11 +17,13 @@ namespace PalworldServerManager
     public partial class MainForm : Form
     {
         public static string APPLICATION_DATA_PATH = Application.StartupPath + "\\Data\\";
-        public static string EXISTING_SERVERS_FILENAME = "known_servers.csv";
+        public static string KNOWN_SERVERS_FILENAME = "known_servers.csv";
         public static string USER_SETTINGS_FILENAME = "usersettings.csv";
         public static string SERVER_PROCESS_NAME = "PalServer-Win64-Test-Cmd";
         public static string SERVER_EXE_NAME = "\\PalServer.exe";
         public static string DEFAULT_PAL_SERVER_DIR_NAME = "\\PalServer";
+
+        public static string KNOWN_SERVER_PATH = APPLICATION_DATA_PATH + KNOWN_SERVERS_FILENAME;
 
         public UserSettings userSettings = new UserSettings();
         public List<KnownServerRow> knownServers;
@@ -42,8 +44,8 @@ namespace PalworldServerManager
 
             userSettings.ReadUserSettings(APPLICATION_DATA_PATH + USER_SETTINGS_FILENAME);
 
-            string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
-            LoadCSVOnDataGridView(existingServerDataFileName);
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
+            dataGridView1.CellContextMenuStripNeeded += dataGridView1_CellContextMenuStripNeeded;
 
             LoadRunningServers();
 
@@ -97,7 +99,7 @@ namespace PalworldServerManager
 
         private void LoadRunningServers()
         {
-            // Try to optimize the port list search
+            // Try to optimize the port list search by only filtering necessary ones
             List<int> searchPorts = new List<int>();
             foreach (KnownServerRow existing in knownServers)
             {
@@ -117,7 +119,6 @@ namespace PalworldServerManager
             }
 
         }
-
 
         private void LoadRunningServerByPort(int portNumber)
         {
@@ -145,31 +146,37 @@ namespace PalworldServerManager
 
         private void LoadCSVOnDataGridView(string fileName)
         {
-            try
-            {
-                ServerDataTable reader = new ServerDataTable(fileName, true);
+            ServerDataTable reader = new ServerDataTable(fileName, true);
 
-                try
-                {
-                    if (reader.csvRead.Columns.Count > 0)
-                    {
-                        dataGridView1.DataSource = reader.csvRead;
-                        knownServers = reader.servers;
-                    }
-                    else
-                    {
-                        throw new Exception(string.Format("Could not load existing server CSV {0}", fileName));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
-            }
-            catch (Exception ex)
+            if (reader.csvRead.Columns.Count > 0)
             {
-                throw new Exception(ex.Message);
+                dataGridView1.DataSource = reader.csvRead;
+                knownServers = reader.servers;
             }
+            else
+            {
+                throw new Exception(string.Format("Could not load existing server CSV {0}", fileName));
+            }
+        }
+
+        private void UpdateAndRefreshCSV()
+        {
+            ServerDataTable.WriteAllServersToCSV(knownServers, KNOWN_SERVER_PATH);
+
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
+
+            dataGridView1.Update();
+            dataGridView1.Refresh();
+        }
+
+        private void UpdateAndRefreshCSV(KnownServerRow newServer)
+        {
+            ServerDataTable.WriteServerToCSV(newServer, KNOWN_SERVER_PATH);
+
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
+
+            dataGridView1.Update();
+            dataGridView1.Refresh();
         }
 
         private void StartNewServer(KnownServerRow server)
@@ -182,7 +189,7 @@ namespace PalworldServerManager
                 Process process = new Process();
                 process.StartInfo.FileName = GetFullServerPath(server) + SERVER_EXE_NAME;
                 process.StartInfo.Arguments = portStr + server.ServerLaunchArgs;
-                process.StartInfo.WorkingDirectory = server.ServerPath;
+                process.StartInfo.WorkingDirectory = GetFullServerPath(server);
 
                 if (process.Start())
                 {
@@ -194,26 +201,35 @@ namespace PalworldServerManager
             }
         }
 
-        private void startServerBtn_Click(object sender, EventArgs e)
+        private KnownServerRow GetSelectedServer()
         {
-            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
+            KnownServerRow server = null;
 
+            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
             if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
             {
-                KnownServerRow server = knownServers[selectedRowIdx];
+                server = knownServers[selectedRowIdx];
+            }
 
+            return server;
+        }
+
+        private void startServerBtn_Click(object sender, EventArgs e)
+        {
+            KnownServerRow server = GetSelectedServer();
+
+            if(server != null)
+            {
                 StartNewServer(server);
             }
         }
 
         private void stopServerBtn_Click(object sender, EventArgs e)
         {
-            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
+            KnownServerRow server = GetSelectedServer();
 
-            if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
+            if (server != null)
             {
-                KnownServerRow server = knownServers[selectedRowIdx];
-
                 if (server.isRunning)
                 {
                     Process proc = Process.GetProcessById(server.ProcessID);
@@ -245,7 +261,12 @@ namespace PalworldServerManager
 
         private void addServerBtn_Click(object sender, EventArgs e)
         {
-            AddServerForm addServerForm = new AddServerForm(userSettings.userSettingsDict["defaultServerDir"]);
+            AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
+            options.defaultDir = userSettings.userSettingsDict["defaultServerDir"];
+            options.isImportMenu = false;
+            options.isEditMenu = false;
+
+            AddServerForm addServerForm = new AddServerForm(options);
             if (addServerForm.ShowDialog(this) == DialogResult.OK)
             {
                 KnownServerRow newServer = new KnownServerRow();
@@ -258,23 +279,16 @@ namespace PalworldServerManager
 
                 CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer));
 
-                string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
-                ServerDataTable.WriteServerToCSV(newServer, existingServerDataFileName);
-                LoadCSVOnDataGridView(existingServerDataFileName);
-
-                dataGridView1.Update();
-                dataGridView1.Refresh();
+                UpdateAndRefreshCSV(newServer);
             }
         }
 
         private void removeServerBtn_Click(object sender, EventArgs e)
         {
-            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
+            KnownServerRow server = GetSelectedServer();
 
-            if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
+            if (server != null)
             {
-                KnownServerRow server = knownServers[selectedRowIdx];
-
                 string promptText = string.Format("Are you sure you want to remove {0}?", server.ServerName);
 
                 ConfirmationPrompt confirmPrompt = new ConfirmationPrompt(promptText);
@@ -287,13 +301,35 @@ namespace PalworldServerManager
 
                     knownServers.Remove(server);
 
-                    string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
-                    ServerDataTable.WriteAllServersToCSV(knownServers, existingServerDataFileName);
+                    UpdateAndRefreshCSV();
+                }
+            }
+        }
 
-                    LoadCSVOnDataGridView(existingServerDataFileName);
+        private void editServerBtn_Click(object sender, EventArgs e)
+        {
+            AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
+            options.defaultDir = "";
+            options.isImportMenu = false;
+            options.isEditMenu = true;
 
-                    dataGridView1.Update();
-                    dataGridView1.Refresh();
+            int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
+            if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
+            {
+                options.editData = knownServers[selectedRowIdx];
+
+                AddServerForm addServerForm = new AddServerForm(options);
+                if (addServerForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    KnownServerRow newServer = new KnownServerRow();
+                    newServer.ServerName = addServerForm.newServerName;
+                    newServer.ServerPort = addServerForm.newServerPort;
+                    newServer.ServerPath = addServerForm.newServerPath;
+                    newServer.ServerLaunchArgs = addServerForm.newServerArgs;
+
+                    knownServers[selectedRowIdx] = newServer;
+
+                    UpdateAndRefreshCSV();
                 }
             }
         }
@@ -316,7 +352,12 @@ namespace PalworldServerManager
 
         private void importExistingServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddServerForm addServerForm = new AddServerForm(userSettings.userSettingsDict["defaultServerDir"], true);
+            AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
+            options.defaultDir = userSettings.userSettingsDict["defaultServerDir"];
+            options.isImportMenu = true;
+            options.isEditMenu = false;
+
+            AddServerForm addServerForm = new AddServerForm(options);
             DialogResult result = addServerForm.ShowDialog(this);
 
             if(result== DialogResult.OK) 
@@ -329,13 +370,41 @@ namespace PalworldServerManager
 
                 knownServers.Add(newServer);
 
-                string existingServerDataFileName = APPLICATION_DATA_PATH + EXISTING_SERVERS_FILENAME;
-                ServerDataTable.WriteServerToCSV(newServer, existingServerDataFileName);
-                LoadCSVOnDataGridView(existingServerDataFileName);
-
-                dataGridView1.Update();
-                dataGridView1.Refresh();
+                UpdateAndRefreshCSV(newServer);
             }
+        }
+
+        private void dataGridView1_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
+        {
+            dataGridView1.ClearSelection();
+
+            int rowSelected = e.RowIndex;
+            if(rowSelected != -1 ) 
+            {
+                dataGridView1.Rows[rowSelected].Selected = true;
+            }
+
+            e.ContextMenuStrip = contextMenuStrip1;
+        }
+
+        private void contextMenuStart_Click(object sender, EventArgs e)
+        {
+            startServerBtn_Click(sender, e);
+        }
+
+        private void contextMenuStop_Click(object sender, EventArgs e)
+        {
+            stopServerBtn_Click(sender, e);
+        }
+
+        private void contextMenuEdit_Click(object sender, EventArgs e)
+        {
+            editServerBtn_Click(sender, e);
+        }
+
+        private void contextMenuRemove_Click(object sender, EventArgs e)
+        {
+            removeServerBtn_Click(sender, e);
         }
     }
 }
