@@ -31,13 +31,6 @@ namespace ApplicationDataUtilities
         }
     }
 
-    public class RunningServerData
-    {
-        public int Port { get; set; } = -1;
-        public int ProcessID { get; set; } = -1;
-    }
-
-
     public class ServerDataTable
     {
         public DataTable csvRead;

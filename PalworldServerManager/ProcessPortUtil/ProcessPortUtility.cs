@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 // Credit: https://www.cheynewallace.com/get-active-ports-and-associated-process-names-in-c/
 
+// Cheyne Wallace created the base functionality. It is quite inefficient alone, so I've added bits of functionality to help optimize this tool
+// by searching for specific ports and protocols. Using search functoinality significantly improves performance.
+
 namespace ProcessPortUtility
 {
     /// <summary>
@@ -16,6 +19,9 @@ namespace ProcessPortUtility
     /// </summary>
     public static class ProcessPorts
     {
+        /// <summary>
+        /// Protocol type to help netstat filter out unnecessary connections
+        /// </summary>
        public enum Protocol
         {
             ANY,
@@ -25,6 +31,7 @@ namespace ProcessPortUtility
 
         /// <summary>
         /// A list of ProcesesPorts that contain the mapping of processes and the ports that the process uses.
+        /// This will get a map of all connections, regardless of port numbers and protocol.
         /// </summary>
         public static List<ProcessPort> ProcessPortMap
         {
@@ -34,13 +41,23 @@ namespace ProcessPortUtility
             }
         }
 
-
+        /// <summary>
+        /// Find a list of ProcesesPorts that match the given list of ports and protocol.
+        /// </summary>
+        /// <param name="ports"></param>
+        /// <param name="protocol"></param>
+        /// <returns></returns>
         public static List<ProcessPort> FindPortsInMap(List<int> ports, Protocol protocol = Protocol.ANY)
         {
             return GetNetStatPorts(ports, protocol);
         }
 
-
+        /// <summary>
+        /// Find a single ProcessPort matching the given port and protocol.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="protocol"></param>
+        /// <returns></returns>
         public static ProcessPort FindPortInMap(int port, Protocol protocol)
         {
             List<int> ports = new List<int>();
