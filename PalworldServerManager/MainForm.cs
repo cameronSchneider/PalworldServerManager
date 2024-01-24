@@ -98,14 +98,18 @@ namespace PalworldServerManager
             return null;
         }
 
-        private Dictionary<string, int> GetServerNamesAndPIDs(List<ProcessPort> processes)
+        private Dictionary<string, int> GetServerNamesAndPIDs(List<Process> processes)
         {
             Dictionary<string, int> namesToPID = new Dictionary<string, int>();
 
-            foreach(ProcessPort process in processes)
+            foreach(Process process in processes)
             {
-                Process currentProc = Process.GetProcessById(process.ProcessId);
-                string fullPath = currentProc.MainModule.FileName;
+                if(process.HasExited)
+                {
+                    continue;
+                }
+
+                string fullPath = process.MainModule.FileName;
 
                 if(fullPath.Contains(PAL_SERVER_DIRECTORY_SUBSTRING)) // this substring is unique to the generated directory name
                 {
@@ -118,29 +122,17 @@ namespace PalworldServerManager
                     string[] nameSplitChars = { "\\" };
                     string[] nameSplitPath = splitPath[1].Split(nameSplitChars, StringSplitOptions.None);
 
-                    namesToPID.Add(nameSplitPath[0], process.ProcessId);
+                    namesToPID.Add(nameSplitPath[0], process.Id);
                 }
             }
 
             return namesToPID;
         }
 
-
         private void LoadRunningServers()
         {
-            // Try to optimize the port list search by only filtering necessary ones
-            List<int> searchPorts = new List<int>();
-            foreach (KnownServerRow existing in knownServers)
-            {
-                searchPorts.Add(Convert.ToInt32(existing.ServerPort));
-            }
-
-
-            // With the list of processes listening on registered ports, extract the server name from the process paths
-            // This is necessary so we can have multiple servers registered under the same port. There is no other way to
-            // know the name of the running server by PID, process name, or port number, but we can determine it by path.
-            List<ProcessPort> serverProcs = ProcessPorts.FindPortsInMap(searchPorts, ProcessPorts.Protocol.UDP);
-            Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs);
+            Process[] serverProcs = Process.GetProcessesByName(SERVER_PROCESS_NAME);
+            Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs.ToList());
 
             for (int idx = 0; idx < knownServers.Count; idx++)
             {
@@ -151,24 +143,12 @@ namespace PalworldServerManager
                     knownServers[idx].ProcessID = serverProcessID;
                 }
             }
-
-        }
-
-        private void LoadRunningServerByPort(int portNumber)
-        {
-            ProcessPort serverProc = ProcessPorts.FindPortInMap(portNumber, ProcessPorts.Protocol.UDP);
-
-            KnownServerRow serverData = FindKnownServerByPort(portNumber);
-
-            if (serverData != null && serverProc != null && serverProc.ProcessName == SERVER_PROCESS_NAME)
-            {
-                serverData.isRunning = true;
-                serverData.ProcessID = serverProc.ProcessId;
-            }
         }
 
         private void UpdateServerStatus()
         {
+            LoadRunningServers();
+
             DataTable data = (DataTable)dataGridView1.DataSource;
 
             for(int idx = 0; idx < knownServers.Count; idx++) 
@@ -225,13 +205,7 @@ namespace PalworldServerManager
                 process.StartInfo.Arguments = portStr + server.ServerLaunchArgs;
                 process.StartInfo.WorkingDirectory = GetFullServerPath(server);
 
-                if (process.Start())
-                {
-                    Thread.Sleep(5000); // Wait a few seconds for the server application to be spawned by the bootstrapper
-
-                    // Reload the running servers to get that new server application data
-                    LoadRunningServerByPort(Convert.ToInt32(server.ServerPort));
-                }
+                process.Start();
             }
         }
 
