@@ -84,21 +84,7 @@ namespace PalworldServerManager
             updater.Start();
         }
 
-
-        private KnownServerRow FindKnownServerByPort(int port)
-        {
-            foreach (KnownServerRow server in knownServers)
-            {
-                if (Convert.ToInt32(server.ServerPort) == port)
-                {
-                    return server;
-                }
-            }
-
-            return null;
-        }
-
-        private Dictionary<string, int> GetServerNamesAndPIDs(List<Process> processes)
+        private Dictionary<string, int> GetServerNamesAndPIDs(Process[] processes)
         {
             Dictionary<string, int> namesToPID = new Dictionary<string, int>();
 
@@ -106,6 +92,7 @@ namespace PalworldServerManager
             {
                 if(process.HasExited)
                 {
+                    // When stopping a process, it will still be returned by Process.GetProcessesByName, but the MainModule will be null
                     continue;
                 }
 
@@ -132,7 +119,7 @@ namespace PalworldServerManager
         private void LoadRunningServers()
         {
             Process[] serverProcs = Process.GetProcessesByName(SERVER_PROCESS_NAME);
-            Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs.ToList());
+            Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs);
 
             for (int idx = 0; idx < knownServers.Count; idx++)
             {
@@ -197,7 +184,6 @@ namespace PalworldServerManager
         {
             if (!server.isRunning)
             {
-                // Start up this server using its registered path, port, and launch args
                 string portStr = string.Format("port={0} ", server.ServerPort);
 
                 Process process = new Process();

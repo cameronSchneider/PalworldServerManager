@@ -89,7 +89,7 @@ namespace PalworldServerManager
 
         private void completeBtn_Click(object sender, EventArgs e)
         {
-            string promptText = string.Format("Are you sure you want to import {0}? \nThis will migrate the existing server folder to the new location.", newServerName);
+            string promptText = string.Format("Are you sure you want to import {0}? \nThis will migrate the existing server folder to the new location, and delete the old folder.", newServerName);
 
             ConfirmationPrompt confirmPrompt = new ConfirmationPrompt(promptText);
             confirmPrompt.Text = "Confirm Import Server";

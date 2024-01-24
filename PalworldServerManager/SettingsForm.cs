@@ -51,7 +51,6 @@ namespace PalworldServerManager
             return true;
         }
 
-
         private void steamInstallBtn_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
@@ -69,7 +68,6 @@ namespace PalworldServerManager
                 installText.Text = defaultServerInstallPath;
             }
         }
-
         private void completeBtn_Click(object sender, EventArgs e)
         {
             string validationErr = "";
