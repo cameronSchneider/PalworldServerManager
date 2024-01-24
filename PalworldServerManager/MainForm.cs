@@ -79,7 +79,7 @@ namespace PalworldServerManager
             }
 
             System.Windows.Forms.Timer updater = new System.Windows.Forms.Timer();
-            updater.Interval = 50; //ms
+            updater.Interval = 1000; //ms
             updater.Tick += Update;
             updater.Start();
         }
@@ -271,7 +271,6 @@ namespace PalworldServerManager
         {
             AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
             options.defaultDir = userSettings.userSettingsDict["defaultServerDir"];
-            options.isImportMenu = false;
             options.isEditMenu = false;
 
             AddServerForm addServerForm = new AddServerForm(options);
@@ -318,7 +317,6 @@ namespace PalworldServerManager
         {
             AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
             options.defaultDir = "";
-            options.isImportMenu = false;
             options.isEditMenu = true;
 
             int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
@@ -360,23 +358,23 @@ namespace PalworldServerManager
 
         private void importExistingServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
-            options.defaultDir = userSettings.userSettingsDict["defaultServerDir"];
-            options.isImportMenu = true;
-            options.isEditMenu = false;
-
-            AddServerForm addServerForm = new AddServerForm(options);
-            DialogResult result = addServerForm.ShowDialog(this);
+            ImportServerForm importServerForm = new ImportServerForm(userSettings.userSettingsDict["defaultServerDir"]);
+            DialogResult result = importServerForm.ShowDialog(this);
 
             if(result== DialogResult.OK) 
             {
+                string existingPathToMigrate = importServerForm.existingServerPath;
+
                 KnownServerRow newServer = new KnownServerRow();
-                newServer.ServerName = addServerForm.newServerName;
-                newServer.ServerPort = addServerForm.newServerPort;
-                newServer.ServerPath = addServerForm.newServerPath;
-                newServer.ServerLaunchArgs = addServerForm.newServerArgs;
+                newServer.ServerName = importServerForm.newServerName;
+                newServer.ServerPort = importServerForm.newServerPort;
+                newServer.ServerPath = importServerForm.newServerPath;
+                newServer.ServerLaunchArgs = importServerForm.newServerArgs;
 
                 knownServers.Add(newServer);
+
+                CopyDirectoryRecursive(existingPathToMigrate, GetFullServerPath(newServer));
+                Directory.Delete(existingPathToMigrate, true);
 
                 UpdateAndRefreshCSV(newServer);
             }

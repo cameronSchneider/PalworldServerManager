@@ -24,7 +24,6 @@ namespace PalworldServerManager
         public class AddServerFormOptions
         {
             public string defaultDir = "";
-            public bool isImportMenu = false;
             public bool isEditMenu = false;
             public KnownServerRow editData;
         }
@@ -42,14 +41,39 @@ namespace PalworldServerManager
                 serverPathTxt.Text = defaultInstallDir;
             }
 
-            if(options.isImportMenu) 
-            {
-                this.Text = "Import Existing Information";
-            }
-            else if(options.isEditMenu) 
+            if(options.isEditMenu) 
             {
                 SetupEditMenu(options.editData);
             }
+        }
+
+        private bool ValidateSettings(out string err)
+        {
+            if (newServerPath == "")
+            {
+                err = "Error: Select an new path to install this server on!";
+                return false;
+            }
+            else if (File.Exists(newServerPath + MainForm.SERVER_EXE_NAME))
+            {
+                err = string.Format("Error: New server path {0} already contains PalServer.exe, select a path without an existing installation.", newServerPath);
+                return false;
+            }
+
+            if (newServerName == "")
+            {
+                err = "Error: Name cannot be empty!";
+                return false;
+            }
+
+            if (newServerPort == "0" || newServerPort == "")
+            {
+                err = "Error: Server port cannot be 0.";
+                return false;
+            }
+
+            err = "";
+            return true;
         }
 
         private void SetupEditMenu(KnownServerRow dataToUse)
@@ -75,6 +99,20 @@ namespace PalworldServerManager
             {
                 serverPathTxt.Text = folderBrowserDialog1.SelectedPath;
                 newServerPath = folderBrowserDialog1.SelectedPath;
+            }
+        }
+
+        private void completeBtn_Click(object sender, EventArgs e)
+        {
+            string validationErr = "";
+            if (ValidateSettings(out validationErr))
+            {
+                Close();
+                DialogResult = DialogResult.OK;
+            }
+            else
+            {
+                errorText.Text = validationErr;
             }
         }
 

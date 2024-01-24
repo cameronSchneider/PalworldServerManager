@@ -30,15 +30,15 @@
         {
             this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.errorText = new System.Windows.Forms.Label();
+            this.installText = new System.Windows.Forms.Label();
             this.steamInstallBtn = new System.Windows.Forms.Button();
             this.defaultDirBtn = new System.Windows.Forms.Button();
             this.completeBtn = new System.Windows.Forms.Button();
+            this.steamText = new System.Windows.Forms.Label();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.steamToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.defaultToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.steamText = new System.Windows.Forms.Label();
-            this.installText = new System.Windows.Forms.Label();
-            this.errorText = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,6 +63,28 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(577, 291);
             this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // errorText
+            // 
+            this.errorText.AutoSize = true;
+            this.errorText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.errorText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.errorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.errorText.Location = new System.Drawing.Point(158, 192);
+            this.errorText.Name = "errorText";
+            this.errorText.Size = new System.Drawing.Size(416, 99);
+            this.errorText.TabIndex = 5;
+            // 
+            // installText
+            // 
+            this.installText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.installText.AutoSize = true;
+            this.installText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.installText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.installText.Location = new System.Drawing.Point(158, 134);
+            this.installText.Name = "installText";
+            this.installText.Size = new System.Drawing.Size(416, 19);
+            this.installText.TabIndex = 4;
             // 
             // steamInstallBtn
             // 
@@ -97,7 +119,6 @@
             // completeBtn
             // 
             this.completeBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.completeBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.completeBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.completeBtn.Location = new System.Drawing.Point(3, 195);
             this.completeBtn.Name = "completeBtn";
@@ -105,6 +126,7 @@
             this.completeBtn.TabIndex = 2;
             this.completeBtn.Text = "Done";
             this.completeBtn.UseVisualStyleBackColor = false;
+            this.completeBtn.Click += new System.EventHandler(this.completeBtn_Click);
             // 
             // steamText
             // 
@@ -116,28 +138,6 @@
             this.steamText.Name = "steamText";
             this.steamText.Size = new System.Drawing.Size(416, 19);
             this.steamText.TabIndex = 3;
-            // 
-            // installText
-            // 
-            this.installText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.installText.AutoSize = true;
-            this.installText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.installText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.installText.Location = new System.Drawing.Point(158, 134);
-            this.installText.Name = "installText";
-            this.installText.Size = new System.Drawing.Size(416, 19);
-            this.installText.TabIndex = 4;
-            // 
-            // errorText
-            // 
-            this.errorText.AutoSize = true;
-            this.errorText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.errorText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.errorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.errorText.Location = new System.Drawing.Point(158, 192);
-            this.errorText.Name = "errorText";
-            this.errorText.Size = new System.Drawing.Size(416, 99);
-            this.errorText.TabIndex = 5;
             // 
             // SettingsForm
             // 

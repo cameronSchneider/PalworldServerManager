@@ -28,10 +28,29 @@ namespace PalworldServerManager
             installText.Text = defaultServerInstallPath;
         }
 
-        private bool ValidateSteamInstallHasPalServerFolder()
+        private bool ValidateSettings(out string err)
         {
-            return Directory.Exists(steamInstallPath + MainForm.DEFAULT_PAL_SERVER_DIR_NAME);
+            if(steamInstallPath == "")
+            {
+                err = "Error: Steam install path cannot be empty!";
+                return false;
+            }
+            else if(!Directory.Exists(steamInstallPath + MainForm.DEFAULT_PAL_SERVER_DIR_NAME))
+            {
+                err = string.Format("Error: Could not find default PalServer folder in {0}, please select the correct Steam \"common\" folder.\nHint: it should end with \\steamapps\\common", steamInstallPath);
+                return false;
+            }
+
+            if(defaultServerInstallPath == "")
+            {
+                err = "Error: Default install path cannot be empty!";
+                return false;
+            }
+
+            err = "";
+            return true;
         }
+
 
         private void steamInstallBtn_Click(object sender, EventArgs e)
         {
@@ -39,14 +58,6 @@ namespace PalworldServerManager
             {
                 steamInstallPath = folderBrowserDialog1.SelectedPath;
                 steamText.Text = steamInstallPath;
-
-                if(!ValidateSteamInstallHasPalServerFolder())
-                {
-                    errorText.Text = "Error: Ensure the stock PalWorld Dedicated Server is installed via Steam before using this tool!";
-                    steamInstallPath = "";
-                    steamText.Text = "";
-                    completeBtn.Enabled = false;
-                }
             }
         }
 
@@ -56,6 +67,20 @@ namespace PalworldServerManager
             {
                 defaultServerInstallPath = folderBrowserDialog1.SelectedPath;
                 installText.Text = defaultServerInstallPath;
+            }
+        }
+
+        private void completeBtn_Click(object sender, EventArgs e)
+        {
+            string validationErr = "";
+            if (ValidateSettings(out validationErr))
+            {
+                Close();
+                DialogResult = DialogResult.OK;
+            }
+            else
+            {
+                errorText.Text = validationErr;
             }
         }
     }
