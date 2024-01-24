@@ -420,7 +420,7 @@ namespace PalworldServerManager
 
         private void versionToolStrip_Click(object sender, EventArgs e)
         {
-            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; 
+            Version version = Assembly.GetExecutingAssembly().GetName().Version; 
             versionTextBox.Text = string.Format("Version: {0}", version.ToString());
         }
     }
