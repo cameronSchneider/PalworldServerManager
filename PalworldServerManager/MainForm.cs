@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -48,6 +49,7 @@ namespace PalworldServerManager
 
             LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
             dataGridView1.CellContextMenuStripNeeded += dataGridView1_CellContextMenuStripNeeded;
+            versionToolStrip.MouseHover += new EventHandler(versionToolStrip_Click);
 
             LoadRunningServers();
 
@@ -397,6 +399,29 @@ namespace PalworldServerManager
         private void contextMenuRemove_Click(object sender, EventArgs e)
         {
             removeServerBtn_Click(sender, e);
+        }
+
+        private void helpToolStrip_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/cameronSchneider/PalworldServerManager");
+            }
+            catch (System.ComponentModel.Win32Exception noBrowser)
+            {
+                if (noBrowser.ErrorCode == -2147467259)
+                    MessageBox.Show(noBrowser.Message);
+            }
+            catch (System.Exception other)
+            {
+                MessageBox.Show(other.Message);
+            }
+        }
+
+        private void versionToolStrip_Click(object sender, EventArgs e)
+        {
+            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; 
+            versionTextBox.Text = string.Format("Version: {0}", version.ToString());
         }
     }
 }
