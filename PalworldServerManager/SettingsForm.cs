@@ -68,6 +68,7 @@ namespace PalworldServerManager
                 installText.Text = defaultServerInstallPath;
             }
         }
+
         private void completeBtn_Click(object sender, EventArgs e)
         {
             string validationErr = "";
