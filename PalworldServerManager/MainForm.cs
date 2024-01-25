@@ -1,4 +1,5 @@
 ﻿using ApplicationDataUtilities;
+using CsvHelper;
 using ProcessPortUtility;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -23,15 +26,21 @@ namespace PalworldServerManager
         public static string SERVER_PROCESS_NAME = "PalServer-Win64-Test-Cmd";
         public static string SERVER_EXE_NAME = "\\PalServer.exe";
         public static string DEFAULT_PAL_SERVER_DIR_NAME = "\\PalServer";
+        public static string PAL_SERVER_CONFIG_PATH = "\\Pal\\Saved\\Config\\WindowsServer\\PalWorldSettings.ini";
+        public static string PAL_DEFAULT_CONFIG_PATH = "\\DefaultPalWorldSettings.ini";
+
+        public static string PAL_SETTINGS_HEADER = "[/Script/Pal.PalGameWorldSettings]";
+        public static string PAL_SETTINGS_OPTION_STR = "OptionSettings=(";
+        public static char PAL_CONFIG_COMMENT_CHAR = ';';
 
         public static string PAL_SERVER_DIRECTORY_SUBSTRING = "PalServer - ";
 
         public static string KNOWN_SERVER_PATH = APPLICATION_DATA_PATH + KNOWN_SERVERS_FILENAME;
 
         public UserSettings userSettings = new UserSettings();
-        public List<KnownServerRow> knownServers;
+        public List<KnownServer> knownServers;
 
-        private static string GetFullServerPath(KnownServerRow server)
+        private static string GetFullServerPath(KnownServer server)
         {
             return server.ServerPath + DEFAULT_PAL_SERVER_DIR_NAME + " - " + server.ServerName;
         }
@@ -45,6 +54,13 @@ namespace PalworldServerManager
         {
             InitializeComponent();
 
+            // Only in dev environment where build changes frequently. Release builds will always come with Data dir.
+            if(!CSVDataHelper.DoesDataDirectoryExist(APPLICATION_DATA_PATH))
+            {
+                Dictionary<string, FileStream> dataFiles = CSVDataHelper.CreateInitialDataFiles(APPLICATION_DATA_PATH, new string[] { KNOWN_SERVERS_FILENAME, USER_SETTINGS_FILENAME });
+                WriteInitialData(dataFiles);
+            }
+
             userSettings.ReadUserSettings(APPLICATION_DATA_PATH + USER_SETTINGS_FILENAME);
 
             LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
@@ -53,37 +69,90 @@ namespace PalworldServerManager
 
             LoadRunningServers();
 
+            // Ensure default PalServer still exists, otherwise force them to retry setup
+            if (userSettings.userSettingsDict["steamInstallDir"] != "" && !Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME))
+            {
+                userSettings.userSettingsDict["completedSetup"] = "false";
+            }
+
             if (userSettings.userSettingsDict["completedSetup"] == "false")
             {
-                SettingsForm setupForm = new SettingsForm(userSettings);
-
-                DialogResult result = setupForm.ShowDialog(this);
-
-                if (result == DialogResult.OK)
-                {
-                    userSettings.userSettingsDict["completedSetup"] = "true";
-                    userSettings.userSettingsDict["steamInstallDir"] = setupForm.steamInstallPath;
-                    userSettings.userSettingsDict["defaultServerDir"] = setupForm.defaultServerInstallPath;
-
-                    userSettings.WriteUserSettings(APPLICATION_DATA_PATH + USER_SETTINGS_FILENAME);
-                }
-                else
-                {
-                    if(Application.MessageLoop)
-                    {
-                        Application.Exit();
-                    }
-                    else
-                    {
-                        Environment.Exit(1);
-                    }
-                }
+                HandleInitialSetup();
             }
 
             System.Windows.Forms.Timer updater = new System.Windows.Forms.Timer();
             updater.Interval = 1000; //ms
             updater.Tick += Update;
             updater.Start();
+        }
+
+        private void WriteInitialData(Dictionary<string, FileStream> fileDict)
+        {
+            FileStream userSettingsFS = fileDict[USER_SETTINGS_FILENAME];
+            FileStream serverListFS = fileDict[KNOWN_SERVERS_FILENAME];
+
+            using (var writer = new StreamWriter(serverListFS))
+            {
+                writer.Write("ServerName,ServerPath,ServerPort,ServerLaunchArgs");
+                writer.WriteLine();
+                writer.Flush();
+            }
+
+            using (var writer = new StreamWriter(userSettingsFS))
+            {
+                writer.Write("completedSetup,false\r\nsteamInstallDir,\r\ndefaultServerDir,");
+                writer.WriteLine();
+                writer.Flush();
+            }
+        }
+
+        private void TryWriteDefaultSettingsToServer(KnownServer server)
+        {
+            bool hasSettings = false;
+            string serverPath = GetFullServerPath(server);
+
+            using (FileStream fs = File.OpenRead(serverPath + PAL_SERVER_CONFIG_PATH))
+            using (StreamReader reader = new StreamReader(fs))
+            {
+                string firstLineComment = reader.ReadLine();
+                if (firstLineComment != null && firstLineComment[0] == PAL_CONFIG_COMMENT_CHAR)
+                {
+                    hasSettings = true;
+                }
+            }
+
+            if(!hasSettings)
+            {
+                // Copy default settings file into server file
+                File.Copy(serverPath + PAL_DEFAULT_CONFIG_PATH, serverPath + PAL_SERVER_CONFIG_PATH, true);
+            }
+        }
+
+        private void HandleInitialSetup()
+        {
+            SettingsForm setupForm = new SettingsForm(userSettings);
+
+            DialogResult result = setupForm.ShowDialog(this);
+
+            if (result == DialogResult.OK)
+            {
+                userSettings.userSettingsDict["completedSetup"] = "true";
+                userSettings.userSettingsDict["steamInstallDir"] = setupForm.steamInstallPath;
+                userSettings.userSettingsDict["defaultServerDir"] = setupForm.defaultServerInstallPath;
+
+                userSettings.WriteUserSettings(APPLICATION_DATA_PATH + USER_SETTINGS_FILENAME);
+            }
+            else
+            {
+                if (Application.MessageLoop)
+                {
+                    Application.Exit();
+                }
+                else
+                {
+                    Environment.Exit(1);
+                }
+            }
         }
 
         private Dictionary<string, int> GetServerNamesAndPIDs(Process[] processes)
@@ -143,7 +212,11 @@ namespace PalworldServerManager
             for(int idx = 0; idx < knownServers.Count; idx++) 
             {
                 string value = knownServers[idx].isRunning ? "Running" : "Stopped";
-                data.Rows[idx]["Server Status"] = value;
+
+                if (data.Rows.Count > 0)
+                {
+                    data.Rows[idx]["Server Status"] = value;
+                }
             }
         }
 
@@ -172,7 +245,7 @@ namespace PalworldServerManager
             dataGridView1.Refresh();
         }
 
-        private void UpdateAndRefreshCSV(KnownServerRow newServer)
+        private void UpdateAndRefreshCSV(KnownServer newServer)
         {
             ServerDataTable.WriteServerToCSV(newServer, KNOWN_SERVER_PATH);
 
@@ -182,7 +255,7 @@ namespace PalworldServerManager
             dataGridView1.Refresh();
         }
 
-        private void StartNewServer(KnownServerRow server)
+        private void StartNewServer(KnownServer server)
         {
             if (!server.isRunning)
             {
@@ -197,9 +270,9 @@ namespace PalworldServerManager
             }
         }
 
-        private KnownServerRow GetSelectedServer()
+        private KnownServer GetSelectedServer()
         {
-            KnownServerRow server = null;
+            KnownServer server = null;
 
             int selectedRowIdx = dataGridView1.SelectedRows[0].Index;
             if (selectedRowIdx >= 0 && selectedRowIdx < knownServers.Count)
@@ -212,7 +285,7 @@ namespace PalworldServerManager
 
         private void startServerBtn_Click(object sender, EventArgs e)
         {
-            KnownServerRow server = GetSelectedServer();
+            KnownServer server = GetSelectedServer();
 
             if(server != null)
             {
@@ -222,7 +295,7 @@ namespace PalworldServerManager
 
         private void stopServerBtn_Click(object sender, EventArgs e)
         {
-            KnownServerRow server = GetSelectedServer();
+            KnownServer server = GetSelectedServer();
 
             if (server != null)
             {
@@ -240,8 +313,13 @@ namespace PalworldServerManager
             }
         }
 
-        private void CopyDirectoryRecursive(string sourceDir, string targetDir)
+        private bool CopyDirectoryRecursive(string sourceDir, string targetDir, KnownServer server)
         {
+            if(Directory.Exists(targetDir))
+            {
+                return false;
+            }
+
             //Now Create all of the directories
             foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
             {
@@ -251,8 +329,18 @@ namespace PalworldServerManager
             //Copy all the files & Replaces any files with the same name
             foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(newPath, newPath.Replace(sourceDir, targetDir), true);
+                try
+                {
+                    File.Copy(newPath, newPath.Replace(sourceDir, targetDir), true);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                    return false;
+                }
             }
+
+            return true;
         }
 
         private void addServerBtn_Click(object sender, EventArgs e)
@@ -264,7 +352,7 @@ namespace PalworldServerManager
             AddServerForm addServerForm = new AddServerForm(options);
             if (addServerForm.ShowDialog(this) == DialogResult.OK)
             {
-                KnownServerRow newServer = new KnownServerRow();
+                KnownServer newServer = new KnownServer();
                 newServer.ServerName = addServerForm.newServerName;
                 newServer.ServerPort = addServerForm.newServerPort;
                 newServer.ServerPath = addServerForm.newServerPath;
@@ -272,7 +360,9 @@ namespace PalworldServerManager
 
                 knownServers.Add(newServer);
 
-                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer));
+                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer), newServer);
+
+                TryWriteDefaultSettingsToServer(newServer);
 
                 UpdateAndRefreshCSV(newServer);
             }
@@ -280,7 +370,7 @@ namespace PalworldServerManager
 
         private void removeServerBtn_Click(object sender, EventArgs e)
         {
-            KnownServerRow server = GetSelectedServer();
+            KnownServer server = GetSelectedServer();
 
             if (server != null)
             {
@@ -315,7 +405,7 @@ namespace PalworldServerManager
                 AddServerForm addServerForm = new AddServerForm(options);
                 if (addServerForm.ShowDialog(this) == DialogResult.OK)
                 {
-                    KnownServerRow newServer = new KnownServerRow();
+                    KnownServer newServer = new KnownServer();
                     newServer.ServerName = addServerForm.newServerName;
                     newServer.ServerPort = addServerForm.newServerPort;
                     newServer.ServerPath = addServerForm.newServerPath;
@@ -353,7 +443,7 @@ namespace PalworldServerManager
             {
                 string existingPathToMigrate = importServerForm.existingServerPath;
 
-                KnownServerRow newServer = new KnownServerRow();
+                KnownServer newServer = new KnownServer();
                 newServer.ServerName = importServerForm.newServerName;
                 newServer.ServerPort = importServerForm.newServerPort;
                 newServer.ServerPath = importServerForm.newServerPath;
@@ -361,8 +451,12 @@ namespace PalworldServerManager
 
                 knownServers.Add(newServer);
 
-                CopyDirectoryRecursive(existingPathToMigrate, GetFullServerPath(newServer));
-                Directory.Delete(existingPathToMigrate, true);
+                if (CopyDirectoryRecursive(existingPathToMigrate, GetFullServerPath(newServer), newServer))
+                {
+                    Directory.Delete(existingPathToMigrate, true);
+                }
+
+                TryWriteDefaultSettingsToServer(newServer);
 
                 UpdateAndRefreshCSV(newServer);
             }
@@ -378,7 +472,18 @@ namespace PalworldServerManager
                 dataGridView1.Rows[rowSelected].Selected = true;
             }
 
-            e.ContextMenuStrip = contextMenuStrip1;
+            e.ContextMenuStrip = serverContextMenu;
+
+            // Don't let server configs be edited while the server is running! Bad!!!
+            KnownServer server = GetSelectedServer();
+            if(server != null && !server.isRunning)
+            {
+                editGameConfigToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                editGameConfigToolStripMenuItem.Enabled = false;
+            }
         }
 
         private void contextMenuStart_Click(object sender, EventArgs e)
@@ -422,6 +527,38 @@ namespace PalworldServerManager
         {
             Version version = Assembly.GetExecutingAssembly().GetName().Version; 
             versionTextBox.Text = string.Format("Version: {0}", version.ToString());
+        }
+
+        private void openFileLocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            KnownServer selectedServer = GetSelectedServer();
+
+            string serverPath = GetFullServerPath(selectedServer);
+            Process.Start(serverPath);
+        }
+
+        private void openConfigToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            KnownServer selectedServer = GetSelectedServer();
+
+            string serverPath = GetFullServerPath(selectedServer);
+            Process.Start(serverPath + PAL_SERVER_CONFIG_PATH);
+        }
+
+        private void openDefaultSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            KnownServer selectedServer = GetSelectedServer();
+
+            string serverPath = GetFullServerPath(selectedServer);
+            Process.Start(serverPath + PAL_DEFAULT_CONFIG_PATH);
+        }
+        
+        private void editGameConfigToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            KnownServer selectedServer = GetSelectedServer();
+            EditGameSettingsForm editForm = new EditGameSettingsForm(GetFullServerPath(selectedServer) + PAL_SERVER_CONFIG_PATH);
+
+            editForm.ShowDialog(this);
         }
     }
 }

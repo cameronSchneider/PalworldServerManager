@@ -47,17 +47,21 @@
             this.helpToolStrip = new System.Windows.Forms.ToolStripMenuItem();
             this.versionToolStrip = new System.Windows.Forms.ToolStripMenuItem();
             this.versionTextBox = new System.Windows.Forms.ToolStripTextBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.serverContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.contextMenuStart = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStop = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openDefaultSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editGameConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
+            this.serverContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -238,7 +242,7 @@
             // helpToolStrip
             // 
             this.helpToolStrip.Name = "helpToolStrip";
-            this.helpToolStrip.Size = new System.Drawing.Size(180, 22);
+            this.helpToolStrip.Size = new System.Drawing.Size(112, 22);
             this.helpToolStrip.Text = "Help";
             this.helpToolStrip.Click += new System.EventHandler(this.helpToolStrip_Click);
             // 
@@ -247,7 +251,7 @@
             this.versionToolStrip.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.versionTextBox});
             this.versionToolStrip.Name = "versionToolStrip";
-            this.versionToolStrip.Size = new System.Drawing.Size(180, 22);
+            this.versionToolStrip.Size = new System.Drawing.Size(112, 22);
             this.versionToolStrip.Text = "Version";
             this.versionToolStrip.Click += new System.EventHandler(this.versionToolStrip_Click);
             // 
@@ -260,44 +264,76 @@
             this.versionTextBox.ReadOnly = true;
             this.versionTextBox.Size = new System.Drawing.Size(200, 16);
             // 
-            // contextMenuStrip1
+            // serverContextMenu
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.serverContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.contextMenuStart,
             this.contextMenuStop,
             this.contextMenuEdit,
-            this.contextMenuRemove});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.contextMenuStrip1.Size = new System.Drawing.Size(118, 92);
+            this.contextMenuRemove,
+            this.openFileLocationToolStripMenuItem,
+            this.openConfigToolStripMenuItem,
+            this.openDefaultSettingsToolStripMenuItem,
+            this.editGameConfigToolStripMenuItem});
+            this.serverContextMenu.Name = "contextMenuStrip1";
+            this.serverContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.serverContextMenu.Size = new System.Drawing.Size(190, 202);
             // 
             // contextMenuStart
             // 
             this.contextMenuStart.Name = "contextMenuStart";
-            this.contextMenuStart.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuStart.Size = new System.Drawing.Size(189, 22);
             this.contextMenuStart.Text = "Start";
             this.contextMenuStart.Click += new System.EventHandler(this.contextMenuStart_Click);
             // 
             // contextMenuStop
             // 
             this.contextMenuStop.Name = "contextMenuStop";
-            this.contextMenuStop.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuStop.Size = new System.Drawing.Size(189, 22);
             this.contextMenuStop.Text = "Stop";
             this.contextMenuStop.Click += new System.EventHandler(this.contextMenuStop_Click);
             // 
             // contextMenuEdit
             // 
             this.contextMenuEdit.Name = "contextMenuEdit";
-            this.contextMenuEdit.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuEdit.Size = new System.Drawing.Size(189, 22);
             this.contextMenuEdit.Text = "Edit";
             this.contextMenuEdit.Click += new System.EventHandler(this.contextMenuEdit_Click);
             // 
             // contextMenuRemove
             // 
             this.contextMenuRemove.Name = "contextMenuRemove";
-            this.contextMenuRemove.Size = new System.Drawing.Size(117, 22);
+            this.contextMenuRemove.Size = new System.Drawing.Size(189, 22);
             this.contextMenuRemove.Text = "Remove";
             this.contextMenuRemove.Click += new System.EventHandler(this.contextMenuRemove_Click);
+            // 
+            // openFileLocationToolStripMenuItem
+            // 
+            this.openFileLocationToolStripMenuItem.Name = "openFileLocationToolStripMenuItem";
+            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.openFileLocationToolStripMenuItem.Text = "Open File Location";
+            this.openFileLocationToolStripMenuItem.Click += new System.EventHandler(this.openFileLocationToolStripMenuItem_Click);
+            // 
+            // openConfigToolStripMenuItem
+            // 
+            this.openConfigToolStripMenuItem.Name = "openConfigToolStripMenuItem";
+            this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.openConfigToolStripMenuItem.Text = "Open Config";
+            this.openConfigToolStripMenuItem.Click += new System.EventHandler(this.openConfigToolStripMenuItem_Click);
+            // 
+            // openDefaultSettingsToolStripMenuItem
+            // 
+            this.openDefaultSettingsToolStripMenuItem.Name = "openDefaultSettingsToolStripMenuItem";
+            this.openDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.openDefaultSettingsToolStripMenuItem.Text = "Open Default Settings";
+            this.openDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.openDefaultSettingsToolStripMenuItem_Click);
+            // 
+            // editGameConfigToolStripMenuItem
+            // 
+            this.editGameConfigToolStripMenuItem.Name = "editGameConfigToolStripMenuItem";
+            this.editGameConfigToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.editGameConfigToolStripMenuItem.Text = "Edit Game Config";
+            this.editGameConfigToolStripMenuItem.Click += new System.EventHandler(this.editGameConfigToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -314,7 +350,7 @@
             this.tableLayoutPanel3.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.serverContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -333,7 +369,7 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editSettingsOption;
         private System.Windows.Forms.ToolStripMenuItem importExistingServerToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ContextMenuStrip serverContextMenu;
         private System.Windows.Forms.ToolStripMenuItem contextMenuStart;
         private System.Windows.Forms.ToolStripMenuItem contextMenuStop;
         private System.Windows.Forms.ToolStripMenuItem contextMenuEdit;
@@ -343,6 +379,10 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStrip;
         private System.Windows.Forms.ToolStripMenuItem versionToolStrip;
         private System.Windows.Forms.ToolStripTextBox versionTextBox;
+        private System.Windows.Forms.ToolStripMenuItem openFileLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openDefaultSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editGameConfigToolStripMenuItem;
     }
 }
 

@@ -121,6 +121,12 @@
       <DependentUpon>ConfirmationPrompt.cs</DependentUpon>
     </Compile>
     <Compile Include="CSVDataUtils\DataUtilities.cs" />
+    <Compile Include="EditGameSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditGameSettingsForm.Designer.cs">
+      <DependentUpon>EditGameSettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ImportServerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -147,6 +153,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConfirmationPrompt.resx">
       <DependentUpon>ConfirmationPrompt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditGameSettingsForm.resx">
+      <DependentUpon>EditGameSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ImportServerForm.resx">
       <DependentUpon>ImportServerForm.cs</DependentUpon>

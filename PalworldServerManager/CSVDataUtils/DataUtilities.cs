@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace ApplicationDataUtilities
 {
-    public class KnownServerRow
+    public class KnownServer
     {
         [Index(0)]
         public string ServerName { get; set; }
@@ -31,20 +31,42 @@ namespace ApplicationDataUtilities
         }
     }
 
+    public class CSVDataHelper
+    {
+        public static bool DoesDataDirectoryExist(string path)
+        {
+            return Directory.Exists(path);
+        }
+
+        public static Dictionary<string, FileStream> CreateInitialDataFiles(string path, string[] fileNames) 
+        {
+            Directory.CreateDirectory(path);
+
+            Dictionary<string, FileStream> fileDict = new Dictionary<string, FileStream>();
+            foreach(string file in fileNames)
+            {
+                FileStream fs = File.Create(path + file);
+                fileDict.Add(file, fs);
+            }
+
+            return fileDict;
+        }
+    }
+
     public class ServerDataTable
     {
         public DataTable csvRead;
-        public List<KnownServerRow> servers = new List<KnownServerRow>();
+        public List<KnownServer> servers = new List<KnownServer>();
 
         public ServerDataTable(string fileName, bool firstRowContainsFieldNames = true)
         {
             csvRead = GenerateDataTable(fileName, firstRowContainsFieldNames, out servers);
         }
 
-        private static DataTable GenerateDataTable(string fileName, bool firstRowContainsFieldNames, out List<KnownServerRow> outServers)
+        private static DataTable GenerateDataTable(string fileName, bool firstRowContainsFieldNames, out List<KnownServer> outServers)
         {
             DataTable result = new DataTable();
-            outServers = new List<KnownServerRow>();
+            outServers = new List<KnownServer>();
 
             if (fileName == "")
             {
@@ -74,7 +96,7 @@ namespace ApplicationDataUtilities
 
                     while(csv.Read())
                     {
-                        KnownServerRow record = csv.GetRecord<KnownServerRow>();
+                        KnownServer record = csv.GetRecord<KnownServer>();
                         result.Rows.Add(record.GetData());
                         outServers.Add(record);
                     }
@@ -86,7 +108,7 @@ namespace ApplicationDataUtilities
             return result;
         }
 
-        public static void WriteServerToCSV(KnownServerRow server, string fileName)
+        public static void WriteServerToCSV(KnownServer server, string fileName)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -107,7 +129,7 @@ namespace ApplicationDataUtilities
             }
         }
 
-        public static void WriteAllServersToCSV(List<KnownServerRow> servers, string fileName)
+        public static void WriteAllServersToCSV(List<KnownServer> servers, string fileName)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {

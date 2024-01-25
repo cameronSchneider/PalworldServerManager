@@ -25,7 +25,7 @@ namespace PalworldServerManager
         {
             public string defaultDir = "";
             public bool isEditMenu = false;
-            public KnownServerRow editData;
+            public KnownServer editData;
         }
 
         public AddServerForm(AddServerFormOptions options)
@@ -76,7 +76,7 @@ namespace PalworldServerManager
             return true;
         }
 
-        private void SetupEditMenu(KnownServerRow dataToUse)
+        private void SetupEditMenu(KnownServer dataToUse)
         {
             this.Text = "Edit Server Information";
 
