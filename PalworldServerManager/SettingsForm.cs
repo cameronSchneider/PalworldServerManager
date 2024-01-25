@@ -1,13 +1,6 @@
 ﻿using ApplicationDataUtilities;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PalworldServerManager
@@ -35,7 +28,7 @@ namespace PalworldServerManager
                 err = "Error: Steam install path cannot be empty!";
                 return false;
             }
-            else if(!Directory.Exists(steamInstallPath + MainForm.DEFAULT_PAL_SERVER_DIR_NAME))
+            else if(!Directory.Exists(steamInstallPath + ProgramConstants.DEFAULT_PAL_SERVER_DIR_NAME))
             {
                 err = string.Format("Error: Could not find default PalServer folder in {0}, please select the correct Steam \"common\" folder.\nHint: it should end with \\steamapps\\common", steamInstallPath);
                 return false;

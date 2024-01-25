@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Globalization;
 
 namespace PalworldServerManager
 {
@@ -61,13 +56,13 @@ namespace PalworldServerManager
             {
                 // Skip comment lines until we hit the header
                 string curLine = reader.ReadLine();
-                while (curLine[0] == MainForm.PAL_CONFIG_COMMENT_CHAR)
+                while (curLine[0] == ProgramConstants.PAL_CONFIG_COMMENT_CHAR)
                 {
                     curLine = reader.ReadLine();
                     continue;
                 }
 
-                settingsString = reader.ReadToEnd().TrimStart(MainForm.PAL_SETTINGS_OPTION_STR.ToCharArray()); // Trim OptionsSettings=(, we only want raw settings
+                settingsString = reader.ReadToEnd().TrimStart(ProgramConstants.PAL_SETTINGS_OPTION_STR.ToCharArray()); // Trim OptionsSettings=(, we only want raw settings
             }
 
             string[] individualSettings = settingsString.Split(',');
@@ -264,7 +259,7 @@ namespace PalworldServerManager
         private void SerializeGameSettings()
         {
             // Settings are stored as one string.
-            string settingsString = MainForm.PAL_SETTINGS_OPTION_STR;
+            string settingsString = ProgramConstants.PAL_SETTINGS_OPTION_STR;
 
             foreach (KeyValuePair<string, GameSettingValue> kvp in gameSettings)
             {
@@ -307,7 +302,7 @@ namespace PalworldServerManager
             using (FileStream settingsFile = File.Open(settingsPath, FileMode.Open, FileAccess.ReadWrite))
             using (StreamWriter writer = new StreamWriter(settingsFile))
             {
-                writer.WriteLine(MainForm.PAL_SETTINGS_HEADER);
+                writer.WriteLine(ProgramConstants.PAL_SETTINGS_HEADER);
                 writer.Write(settingsString);
             }
         }

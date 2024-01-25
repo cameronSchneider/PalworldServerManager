@@ -1,13 +1,6 @@
 ﻿using ApplicationDataUtilities;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PalworldServerManager
@@ -54,7 +47,7 @@ namespace PalworldServerManager
                 err = "Error: Select an new path to install this server on!";
                 return false;
             }
-            else if (File.Exists(newServerPath + MainForm.SERVER_EXE_NAME))
+            else if (File.Exists(newServerPath + ProgramConstants.SERVER_EXE_NAME))
             {
                 err = string.Format("Error: New server path {0} already contains PalServer.exe, select a path without an existing installation.", newServerPath);
                 return false;

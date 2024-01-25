@@ -133,6 +133,7 @@
     <Compile Include="ImportServerForm.Designer.cs">
       <DependentUpon>ImportServerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProgramConstants.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
