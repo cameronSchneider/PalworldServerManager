@@ -14,8 +14,17 @@ namespace PalworldServerManager
     public partial class EditGameSettingsForm : Form
     {
         private string settingsPath = "";
+        public enum SettingValueType
+        {
+            Boolean,
+            DeathPenalty,
+            Difficulty,
+            Int,
+            Float,
+            String
+        };
 
-        struct GameSettingValue
+        public struct GameSettingValue
         {
             public string Value;
             public SettingValueType Type;
@@ -41,19 +50,10 @@ namespace PalworldServerManager
 
 
         private Dictionary<string, GameSettingValue> gameSettings = new Dictionary<string, GameSettingValue>();
+        private Dictionary<string, Tuple<GameSettingValue, GameSettingValue>> changedSettings = new Dictionary<string, Tuple<GameSettingValue, GameSettingValue>>();
 
         private Dictionary<string, string> gameSettingOptions = new Dictionary<string, string>();
         private Dictionary<string, string> gameSettingDescriptions = new Dictionary<string, string>();
-
-        private enum SettingValueType
-        {
-            Boolean,
-            DeathPenalty,
-            Difficulty,
-            Int,
-            Float,
-            String
-        };
 
         public EditGameSettingsForm(string settingsFilePath)
         {
@@ -156,7 +156,7 @@ namespace PalworldServerManager
             }
         }
 
-        private DataGridViewCell CreateSettingCell(string setting)
+        public static DataGridViewCell CreateSettingCell(string setting)
         {
             return new DataGridViewTextBoxCell()
             {
@@ -327,11 +327,22 @@ namespace PalworldServerManager
             string settingName = settingsDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
             string value = settingsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
 
-            if(gameSettings.ContainsKey(settingName))
+            GameSettingValue oldVal = gameSettings[settingName];
+
+            if(value == "")
+            {
+                settingsDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = oldVal.Value;
+                return;
+            }
+
+            if (gameSettings.ContainsKey(settingName))
             {
                 GameSettingValue newVal = new GameSettingValue();
                 newVal.Value = value;
                 newVal.Type = gameSettings[settingName].Type;
+
+                Tuple<GameSettingValue, GameSettingValue> oldNewChange = new Tuple<GameSettingValue, GameSettingValue>(oldVal, newVal);
+                changedSettings.Add(settingName, oldNewChange);
 
                 gameSettings[settingName] = newVal;
             }
@@ -361,14 +372,15 @@ namespace PalworldServerManager
 
         private void completeBtn_Click(object sender, EventArgs e)
         {
-            ConfirmationPrompt confirm = new ConfirmationPrompt("Commit these setting changes? This will overwrite current settings.");
+            EditGameSettingsConfirmation confirm = new EditGameSettingsConfirmation(changedSettings);
 
-            if(confirm.ShowDialog(this) == DialogResult.OK) 
+            if(changedSettings.Count > 0 && confirm.ShowDialog(this) == DialogResult.OK) 
             {
                 SerializeGameSettings();
-                Close();
-                DialogResult = DialogResult.OK;
             }
+
+            Close();
+            DialogResult = DialogResult.OK;
         }
 
         private void SerializeGameSettings()
