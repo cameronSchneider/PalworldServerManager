@@ -24,6 +24,7 @@ namespace ApplicationDataUtilities
 
         public bool isRunning = false;
         public int ProcessID = -1;
+        public bool hasRunOnce = false;
 
         public object[] GetData()
         {

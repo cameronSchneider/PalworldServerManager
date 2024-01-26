@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Threading;
 using static PalworldServerManager.ProgramConstants;
+using System.Threading.Tasks;
 
 namespace PalworldServerManager
 {
@@ -17,6 +19,15 @@ namespace PalworldServerManager
         public List<KnownServer> knownServers;
 
         private static MainForm instance = null;
+
+        private Thread addServerThread = null;
+        private KnownServer currentAddingServer = null;
+        private object addServerComplete = false;
+        private bool isAdding = false;
+
+        private Thread importServerThread = null;
+        private KnownServer currentImportingServer = null;
+        private object importServerComplete = false;
 
         public static MainForm GetInstance()
         {
@@ -43,6 +54,9 @@ namespace PalworldServerManager
 
         private void Update(object sender, EventArgs e)
         {
+            CheckAddServerThread();
+            CheckImportServerThread();
+
             UpdateServerStatus();
         }
 
@@ -84,13 +98,18 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["completedSetup"] = "false";
             }
 
+            if(userSettings.userSettingsDict["steamInstallDir"] != "" && Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME))
+            {
+                DeleteDefaultSteamWorldIfExists();
+            }
+
             if (userSettings.userSettingsDict["completedSetup"] == "false")
             {
                 HandleInitialSetup();
             }
 
             System.Windows.Forms.Timer updater = new System.Windows.Forms.Timer();
-            updater.Interval = 1000; //ms
+            updater.Interval = 500; //ms
             updater.Tick += Update;
             updater.Start();
         }
@@ -129,10 +148,15 @@ namespace PalworldServerManager
             }
         }
 
-        private void TryWriteDefaultSettingsToServer(KnownServer server)
+        private void TryWriteDefaultSettingsToServer(string serverPath)
         {
             bool hasSettings = false;
-            string serverPath = GetFullServerPath(server);
+
+            if(!Directory.Exists(serverPath + PAL_SERVER_CONFIG_PATH))
+            {
+                // server doesn't have this dir, it hasn't been run yet. Can't import default settings;
+                return;
+            }
 
             using (FileStream fs = File.OpenRead(serverPath + PAL_SERVER_CONFIG_PATH))
             using (StreamReader reader = new StreamReader(fs))
@@ -162,6 +186,8 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["completedSetup"] = "true";
                 userSettings.userSettingsDict["steamInstallDir"] = setupForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = setupForm.defaultServerInstallPath;
+
+                DeleteDefaultSteamWorldIfExists();
 
                 userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
             }
@@ -236,9 +262,74 @@ namespace PalworldServerManager
             {
                 string value = knownServers[idx].isRunning ? "Running" : "Stopped";
 
-                if (data.Rows.Count > 0)
+                if (idx < data.Rows.Count)
                 {
                     data.Rows[idx]["Server Status"] = value;
+                }
+            }
+        }
+
+        private void CheckAddServerThread()
+        {
+            if (addServerThread != null)
+            {
+                if (!addServerThread.IsAlive)
+                {
+                    ThreadedAddComplete();
+                }
+            }
+
+            addServerBtn.Enabled = !isAdding; // don't allow concurrent adds, this will cause file exceptions since we copy from the same location
+        }
+
+        private void CheckImportServerThread()
+        {
+            if (importServerThread != null)
+            {
+                if (!importServerThread.IsAlive)
+                {
+                    ThreadedImportComplete();
+                }
+            }
+        }
+
+        private void CheckServerHasRunOnce(KnownServer server)
+        {
+            // if server doesn't have this dir, it hasn't been run yet.
+            if (File.Exists(GetFullServerPath(server) + PAL_SERVER_CONFIG_PATH))
+            {
+                for (int idx = 0; idx < knownServers.Count; idx++)
+                {
+                    if (knownServers[idx] == server)
+                    {
+                        knownServers[idx].hasRunOnce = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void DeleteDefaultSteamWorldIfExists()
+        {
+            string steamWorldPath = userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_WORLD_PATH;
+
+            if(Directory.Exists(steamWorldPath))
+            {
+                if(MessageBox.Show("WARNING: An existing world has been found in your default Steam server!" +
+                    "\n Continuing will delete that world. Cancel to make a backup, then retry setup.", "Confirm", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    Directory.Delete(steamWorldPath, true);
+                }
+                else
+                {
+                    if (Application.MessageLoop)
+                    {
+                        Application.Exit();
+                    }
+                    else
+                    {
+                        Environment.Exit(1);
+                    }
                 }
             }
         }
@@ -251,6 +342,11 @@ namespace PalworldServerManager
             {
                 dataGridView1.DataSource = reader.csvRead;
                 knownServers = reader.servers;
+
+                foreach(KnownServer server in knownServers)
+                {
+                    CheckServerHasRunOnce(server);
+                }
             }
             else
             {
@@ -336,7 +432,7 @@ namespace PalworldServerManager
             }
         }
 
-        private bool CopyDirectoryRecursive(string sourceDir, string targetDir, KnownServer server)
+        private bool CopyDirectoryRecursive(string sourceDir, string targetDir)
         {
             if(Directory.Exists(targetDir))
             {
@@ -366,6 +462,29 @@ namespace PalworldServerManager
             return true;
         }
 
+        private void ThreadedAdd(string serverPath, string steamInstall)
+        {
+            lock(addServerComplete)
+            {
+                CopyDirectoryRecursive(steamInstall + DEFAULT_PAL_SERVER_DIR_NAME, serverPath);
+            }
+        }
+
+        private void ThreadedAddComplete()
+        {
+            lock (addServerComplete)
+            {
+                UpdateAndRefreshCSV(currentAddingServer);
+
+                CheckServerHasRunOnce(currentAddingServer);
+
+                currentAddingServer = null;
+
+                addServerThread = null;
+                isAdding = false;
+            }
+        }
+
         private void addServerBtn_Click(object sender, EventArgs e)
         {
             AddServerForm.AddServerFormOptions options = new AddServerForm.AddServerFormOptions();
@@ -383,11 +502,18 @@ namespace PalworldServerManager
 
                 knownServers.Add(newServer);
 
-                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer), newServer);
+                currentAddingServer = newServer;
+                string fullServerPath = GetFullServerPath(newServer);
+                string steamInstallDir = userSettings.userSettingsDict["steamInstallDir"];
 
-                TryWriteDefaultSettingsToServer(newServer);
+                isAdding = true;
 
-                UpdateAndRefreshCSV(newServer);
+                addServerThread = new Thread(() =>
+                {
+                    ThreadedAdd(fullServerPath, steamInstallDir);
+                });
+
+                addServerThread.Start();
             }
         }
 
@@ -405,7 +531,12 @@ namespace PalworldServerManager
                 DialogResult result = confirmPrompt.ShowDialog(this);
                 if(result == DialogResult.OK)
                 {
-                    Directory.Delete(GetFullServerPath(server), true);
+                    string serverPath = GetFullServerPath(server);
+
+                    if(Directory.Exists(serverPath))
+                    {
+                        Directory.Delete(serverPath, true);
+                    }
 
                     knownServers.Remove(server);
 
@@ -453,7 +584,36 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["steamInstallDir"] = settingsForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = settingsForm.defaultServerInstallPath;
 
+                DeleteDefaultSteamWorldIfExists();
+
                 userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
+            }
+        }
+
+        private void ThreadedImport(string existingPathToMigrate, string fullServerPath)
+        {
+            lock(importServerComplete)
+            {
+                if (CopyDirectoryRecursive(existingPathToMigrate, fullServerPath))
+                {
+                    Directory.Delete(existingPathToMigrate, true);
+                }
+
+                TryWriteDefaultSettingsToServer(fullServerPath);
+            }
+        }
+
+        private void ThreadedImportComplete()
+        {
+            lock (importServerComplete)
+            {
+                UpdateAndRefreshCSV(currentImportingServer);
+
+                CheckServerHasRunOnce(currentImportingServer);
+
+                currentImportingServer = null;
+
+                importServerThread = null;
             }
         }
 
@@ -473,15 +633,15 @@ namespace PalworldServerManager
                 newServer.ServerLaunchArgs = importServerForm.newServerArgs;
 
                 knownServers.Add(newServer);
+                string fullServerPath = GetFullServerPath(newServer);
 
-                if (CopyDirectoryRecursive(existingPathToMigrate, GetFullServerPath(newServer), newServer))
+                currentImportingServer = newServer;
+                importServerThread = new Thread(() =>
                 {
-                    Directory.Delete(existingPathToMigrate, true);
-                }
+                    ThreadedImport(existingPathToMigrate, fullServerPath);
+                });
 
-                TryWriteDefaultSettingsToServer(newServer);
-
-                UpdateAndRefreshCSV(newServer);
+                importServerThread.Start();
             }
         }
 
@@ -499,13 +659,15 @@ namespace PalworldServerManager
 
             // Don't let server configs be edited while the server is running! Bad!!!
             KnownServer server = GetSelectedServer();
-            if(server != null && !server.isRunning)
+            if(server != null && !server.isRunning && server.hasRunOnce)
             {
                 editGameConfigToolStripMenuItem.Enabled = true;
+                openConfigToolStripMenuItem.Enabled = true;
             }
             else
             {
                 editGameConfigToolStripMenuItem.Enabled = false;
+                openConfigToolStripMenuItem.Enabled = false;
             }
         }
 

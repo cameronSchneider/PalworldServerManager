@@ -272,8 +272,8 @@
             this.contextMenuEdit,
             this.contextMenuRemove,
             this.openFileLocationToolStripMenuItem,
-            this.openConfigToolStripMenuItem,
             this.openDefaultSettingsToolStripMenuItem,
+            this.openConfigToolStripMenuItem,
             this.editGameConfigToolStripMenuItem});
             this.serverContextMenu.Name = "contextMenuStrip1";
             this.serverContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
@@ -319,6 +319,7 @@
             this.openConfigToolStripMenuItem.Name = "openConfigToolStripMenuItem";
             this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.openConfigToolStripMenuItem.Text = "Open Config";
+            this.openConfigToolStripMenuItem.ToolTipText = "Server must run once to use this option.";
             this.openConfigToolStripMenuItem.Click += new System.EventHandler(this.openConfigToolStripMenuItem_Click);
             // 
             // openDefaultSettingsToolStripMenuItem
@@ -333,6 +334,7 @@
             this.editGameConfigToolStripMenuItem.Name = "editGameConfigToolStripMenuItem";
             this.editGameConfigToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.editGameConfigToolStripMenuItem.Text = "Edit Game Config";
+            this.editGameConfigToolStripMenuItem.ToolTipText = "Server must run once to use this option.";
             this.editGameConfigToolStripMenuItem.Click += new System.EventHandler(this.editGameConfigToolStripMenuItem_Click);
             // 
             // MainForm
