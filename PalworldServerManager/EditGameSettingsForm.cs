@@ -4,6 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
+using CsvHelper;
+using System.Globalization;
+using CsvHelper.Configuration.Attributes;
+using CsvHelper.Configuration;
 
 namespace PalworldServerManager
 {
@@ -17,12 +21,35 @@ namespace PalworldServerManager
             public SettingValueType Type;
         }
 
+        public class GameSettingOptionEntry
+        {
+            [Index(0)]
+            public string SettingName { get; set; }
+
+            [Index(1)]
+            public string Options { get; set; }
+        }
+
+        public class GameSettingDescriptionEntry
+        {
+            [Index(0)]
+            public string SettingName { get; set; }
+
+            [Index(1)]
+            public string Description { get; set; }
+        }
+
+
         private Dictionary<string, GameSettingValue> gameSettings = new Dictionary<string, GameSettingValue>();
+
+        private Dictionary<string, string> gameSettingOptions = new Dictionary<string, string>();
+        private Dictionary<string, string> gameSettingDescriptions = new Dictionary<string, string>();
 
         private enum SettingValueType
         {
             Boolean,
             DeathPenalty,
+            Difficulty,
             Int,
             Float,
             String
@@ -36,15 +63,52 @@ namespace PalworldServerManager
             {
                 settingsPath = settingsFilePath;
 
+                LoadSettingOptions();
+                LoadSettingDescriptions();
+
                 ParseGameSettingsFile();
                 SetUpDataViewGrid();
-                settingsDataGrid.EditingControlShowing += HandleEditingControlShowing;
-                settingsDataGrid.CellEndEdit += HandleCellEditComplete;
             }
             else
             {
                 Close();
                 DialogResult = DialogResult.Abort;
+            }
+        }
+
+        private void LoadSettingOptions()
+        {
+            using (StreamReader reader = new StreamReader(ProgramConstants.APPLICATION_DATA_PATH + ProgramConstants.PAL_GAME_SETTING_OPTIONS_FILE))
+            {
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+
+                    while(csv.Read())
+                    {
+                        GameSettingOptionEntry optionEntry = csv.GetRecord<GameSettingOptionEntry>();
+                        gameSettingOptions.Add(optionEntry.SettingName, optionEntry.Options);
+                    }
+                }
+            }
+        }
+
+        private void LoadSettingDescriptions()
+        {
+            using (StreamReader reader = new StreamReader(ProgramConstants.APPLICATION_DATA_PATH + ProgramConstants.PAL_GAME_SETTING_DESCRIPTIONS_FILE))
+            {
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+
+                    while (csv.Read())
+                    {
+                        GameSettingDescriptionEntry optionEntry = csv.GetRecord<GameSettingDescriptionEntry>();
+                        gameSettingDescriptions.Add(optionEntry.SettingName, optionEntry.Description);
+                    }
+                }
             }
         }
 
@@ -86,7 +150,7 @@ namespace PalworldServerManager
 
                 GameSettingValue newVal = new GameSettingValue();
                 newVal.Value = keyValue[1];
-                newVal.Type = GetSettingValueTypeFromString(keyValue[1]);
+                newVal.Type = GetSettingValueTypeFromString(keyValue[0], keyValue[1]);
 
                 gameSettings[keyValue[0]] = newVal;
             }
@@ -101,6 +165,18 @@ namespace PalworldServerManager
             };
         }
 
+        private string[] GetDeathPenaltyOptions()
+        {
+            string[] options = gameSettingOptions["DeathPenalty"].Split('|');
+            return options;
+        }
+
+        private string[] GetDifficultyOptions()
+        {
+            string[] options = gameSettingOptions["Difficulty"].Split('|');
+            return options;
+        }
+
         private DataGridViewCell CreateValueCell(SettingValueType type, string value) 
         {
             DataGridViewCell cell;
@@ -112,10 +188,18 @@ namespace PalworldServerManager
                     { Value = value, ValueType = typeof(bool) };
                     break;
                 case SettingValueType.DeathPenalty:
-                    var selectablePenalties = new string[] { "None", "Item", "ItemAndEquipment", "All" };
+                    var selectablePenalties = GetDeathPenaltyOptions();
                     cell = new DataGridViewComboBoxCell()
                     {
                         DataSource = new BindingList<string>(selectablePenalties),
+                        Value = value,
+                    };
+                    break;
+                case SettingValueType.Difficulty:
+                    var selectableDifficulties = GetDifficultyOptions();
+                    cell = new DataGridViewComboBoxCell()
+                    {
+                        DataSource = new BindingList<string>(selectableDifficulties),
                         Value = value,
                     };
                     break;
@@ -142,11 +226,16 @@ namespace PalworldServerManager
             settingsDataGrid.Rows.Add(row);
         }
 
-        private SettingValueType GetSettingValueTypeFromString(string value)
+        private SettingValueType GetSettingValueTypeFromString(string setting, string value)
         {
             if (value.ToLower() == "false" || value.ToLower() == "true")
             {
                 return SettingValueType.Boolean;
+            }
+
+            if(setting == "Difficulty")
+            {
+                return SettingValueType.Difficulty;
             }
 
             int intVal = 0;
@@ -160,10 +249,7 @@ namespace PalworldServerManager
                 return SettingValueType.Float;
             }
 
-            if (value.ToLower() == "none" || 
-                value.ToLower() == "item" ||
-                value.ToLower() == "itemandequipment" ||
-                value.ToLower() == "all")
+            if (GetDeathPenaltyOptions().Contains(value))
             {
                 return SettingValueType.DeathPenalty;
             }
@@ -176,6 +262,11 @@ namespace PalworldServerManager
             // Generate rows from Dictionary
             // https://stackoverflow.com/questions/18045248/adding-different-datagridview-cell-types-to-a-column
 
+            settingsDataGrid.EditingControlShowing += HandleEditingControlShowing;
+            settingsDataGrid.CellEndEdit += HandleCellEditComplete;
+            settingsDataGrid.SelectionChanged += HandleRowSelectionChanged;
+            settingsDataGrid.CellEnter += HandleCellSelectionChanged;
+
             settingsDataGrid.Columns.Add("Setting", "Setting");
             settingsDataGrid.Columns.Add("Value", "Value");
 
@@ -185,6 +276,8 @@ namespace PalworldServerManager
 
                 AddRow(setting, kvp.Value.Value, kvp.Value.Type);
             }
+
+            settingsDataGrid.Rows[0].Selected = true;
         }
 
         private void HandleGridKeyDown(object sender, KeyEventArgs e)
@@ -242,6 +335,28 @@ namespace PalworldServerManager
 
                 gameSettings[settingName] = newVal;
             }
+        }
+
+        private void HandleRowSelectionChanged(object sender, EventArgs e)
+        {
+            if(settingsDataGrid.SelectedRows.Count > 0)
+            {
+                string selectedSetting = settingsDataGrid.SelectedRows[0].Cells[0].Value.ToString();
+
+                if(gameSettingDescriptions.ContainsKey(selectedSetting))
+                {
+                    settingDescTxt.Text = gameSettingDescriptions[selectedSetting];
+                }
+            }
+        }
+
+        private void HandleCellSelectionChanged(object sender, EventArgs e)
+        {
+            if(settingsDataGrid.SelectedCells.Count > 0)
+            {
+                int selectedCellRow = settingsDataGrid.SelectedCells[0].RowIndex;
+                settingsDataGrid.Rows[selectedCellRow].Selected = true;
+            }   
         }
 
         private void completeBtn_Click(object sender, EventArgs e)

@@ -20,5 +20,8 @@ namespace PalworldServerManager
         public static string PAL_SERVER_DIRECTORY_SUBSTRING = "PalServer - ";
 
         public static string KNOWN_SERVER_PATH = APPLICATION_DATA_PATH + KNOWN_SERVERS_FILENAME;
+
+        public static string PAL_GAME_SETTING_OPTIONS_FILE = "game_settings_options.csv";
+        public static string PAL_GAME_SETTING_DESCRIPTIONS_FILE = "game_settings_descriptions.csv";
     }
 }
