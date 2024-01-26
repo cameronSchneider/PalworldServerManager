@@ -277,61 +277,61 @@
             this.editGameConfigToolStripMenuItem});
             this.serverContextMenu.Name = "contextMenuStrip1";
             this.serverContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.serverContextMenu.Size = new System.Drawing.Size(190, 202);
+            this.serverContextMenu.Size = new System.Drawing.Size(184, 180);
             // 
             // contextMenuStart
             // 
             this.contextMenuStart.Name = "contextMenuStart";
-            this.contextMenuStart.Size = new System.Drawing.Size(189, 22);
+            this.contextMenuStart.Size = new System.Drawing.Size(183, 22);
             this.contextMenuStart.Text = "Start";
             this.contextMenuStart.Click += new System.EventHandler(this.contextMenuStart_Click);
             // 
             // contextMenuStop
             // 
             this.contextMenuStop.Name = "contextMenuStop";
-            this.contextMenuStop.Size = new System.Drawing.Size(189, 22);
+            this.contextMenuStop.Size = new System.Drawing.Size(183, 22);
             this.contextMenuStop.Text = "Stop";
             this.contextMenuStop.Click += new System.EventHandler(this.contextMenuStop_Click);
             // 
             // contextMenuEdit
             // 
             this.contextMenuEdit.Name = "contextMenuEdit";
-            this.contextMenuEdit.Size = new System.Drawing.Size(189, 22);
-            this.contextMenuEdit.Text = "Edit";
+            this.contextMenuEdit.Size = new System.Drawing.Size(183, 22);
+            this.contextMenuEdit.Text = "Edit Server Settings";
             this.contextMenuEdit.Click += new System.EventHandler(this.contextMenuEdit_Click);
             // 
             // contextMenuRemove
             // 
             this.contextMenuRemove.Name = "contextMenuRemove";
-            this.contextMenuRemove.Size = new System.Drawing.Size(189, 22);
+            this.contextMenuRemove.Size = new System.Drawing.Size(183, 22);
             this.contextMenuRemove.Text = "Remove";
             this.contextMenuRemove.Click += new System.EventHandler(this.contextMenuRemove_Click);
             // 
             // openFileLocationToolStripMenuItem
             // 
             this.openFileLocationToolStripMenuItem.Name = "openFileLocationToolStripMenuItem";
-            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.openFileLocationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.openFileLocationToolStripMenuItem.Text = "Open File Location";
             this.openFileLocationToolStripMenuItem.Click += new System.EventHandler(this.openFileLocationToolStripMenuItem_Click);
             // 
             // openConfigToolStripMenuItem
             // 
             this.openConfigToolStripMenuItem.Name = "openConfigToolStripMenuItem";
-            this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.openConfigToolStripMenuItem.Text = "Open Config";
             this.openConfigToolStripMenuItem.Click += new System.EventHandler(this.openConfigToolStripMenuItem_Click);
             // 
             // openDefaultSettingsToolStripMenuItem
             // 
             this.openDefaultSettingsToolStripMenuItem.Name = "openDefaultSettingsToolStripMenuItem";
-            this.openDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.openDefaultSettingsToolStripMenuItem.Text = "Open Default Settings";
+            this.openDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.openDefaultSettingsToolStripMenuItem.Text = "Open Default Config";
             this.openDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.openDefaultSettingsToolStripMenuItem_Click);
             // 
             // editGameConfigToolStripMenuItem
             // 
             this.editGameConfigToolStripMenuItem.Name = "editGameConfigToolStripMenuItem";
-            this.editGameConfigToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.editGameConfigToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.editGameConfigToolStripMenuItem.Text = "Edit Game Config";
             this.editGameConfigToolStripMenuItem.Click += new System.EventHandler(this.editGameConfigToolStripMenuItem_Click);
             // 

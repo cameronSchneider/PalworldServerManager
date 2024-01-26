@@ -1,9 +1,11 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace PalworldServerManager
 {
     public class ProgramConstants
     {
+        public static string APPLICATION_USER_DATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\PalWorldServerManager\\Data\\";
         public static string APPLICATION_DATA_PATH = Application.StartupPath + "\\Data\\";
         public static string KNOWN_SERVERS_FILENAME = "known_servers.csv";
         public static string USER_SETTINGS_FILENAME = "usersettings.csv";
@@ -19,7 +21,7 @@ namespace PalworldServerManager
 
         public static string PAL_SERVER_DIRECTORY_SUBSTRING = "PalServer - ";
 
-        public static string KNOWN_SERVER_PATH = APPLICATION_DATA_PATH + KNOWN_SERVERS_FILENAME;
+        public static string KNOWN_SERVER_PATH = APPLICATION_USER_DATA_PATH + KNOWN_SERVERS_FILENAME;
 
         public static string PAL_GAME_SETTING_OPTIONS_FILE = "game_settings_options.csv";
         public static string PAL_GAME_SETTING_DESCRIPTIONS_FILE = "game_settings_descriptions.csv";

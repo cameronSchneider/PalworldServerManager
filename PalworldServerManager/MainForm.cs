@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using static PalworldServerManager.ProgramConstants;
 
 namespace PalworldServerManager
 {
@@ -37,7 +38,7 @@ namespace PalworldServerManager
 
         private static string GetFullServerPath(KnownServer server)
         {
-            return server.ServerPath + ProgramConstants.DEFAULT_PAL_SERVER_DIR_NAME + " - " + server.ServerName;
+            return server.ServerPath + DEFAULT_PAL_SERVER_DIR_NAME + " - " + server.ServerName;
         }
 
         private void Update(object sender, EventArgs e)
@@ -54,23 +55,31 @@ namespace PalworldServerManager
 
             InitializeComponent();
 
+#if DEBUG
             // Only in dev environment where build changes frequently. Release builds will always come with Data dir.
-            if(!CSVDataHelper.DoesDataDirectoryExist(ProgramConstants.APPLICATION_DATA_PATH))
+            if(!CSVDataHelper.DoesDataDirectoryExist(APPLICATION_DATA_PATH))
             {
-                Dictionary<string, FileStream> dataFiles = CSVDataHelper.CreateInitialDataFiles(ProgramConstants.APPLICATION_DATA_PATH, new string[] { ProgramConstants.KNOWN_SERVERS_FILENAME, ProgramConstants.USER_SETTINGS_FILENAME });
+                Dictionary<string, FileStream> dataFiles = CSVDataHelper.CreateInitialDataFiles(APPLICATION_DATA_PATH, new string[] { KNOWN_SERVERS_FILENAME, USER_SETTINGS_FILENAME });
                 WriteInitialData(dataFiles);
             }
+#endif
 
-            userSettings.ReadUserSettings(ProgramConstants.APPLICATION_DATA_PATH + ProgramConstants.USER_SETTINGS_FILENAME);
+            // setup user-specific AppData path to store known servers and user settings
+            if (!Directory.Exists(APPLICATION_USER_DATA_PATH))
+            {
+                SetupUserAppData();
+            }
 
-            LoadCSVOnDataGridView(ProgramConstants.KNOWN_SERVER_PATH);
+            userSettings.ReadUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
+
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
             dataGridView1.CellContextMenuStripNeeded += dataGridView1_CellContextMenuStripNeeded;
             versionToolStrip.MouseHover += new EventHandler(versionToolStrip_Click);
 
             LoadRunningServers();
 
             // Ensure default PalServer still exists, otherwise force them to retry setup
-            if (userSettings.userSettingsDict["steamInstallDir"] != "" && !Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + ProgramConstants.DEFAULT_PAL_SERVER_DIR_NAME))
+            if (userSettings.userSettingsDict["steamInstallDir"] != "" && !Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME))
             {
                 userSettings.userSettingsDict["completedSetup"] = "false";
             }
@@ -86,10 +95,24 @@ namespace PalworldServerManager
             updater.Start();
         }
 
+        private void SetupUserAppData()
+        {
+            Directory.CreateDirectory(APPLICATION_USER_DATA_PATH);
+
+            // Copy template files to new dir
+            string[] templateNames = new string[] { KNOWN_SERVERS_FILENAME, USER_SETTINGS_FILENAME };
+            foreach(string template in templateNames)
+            {
+                string sourceDir = APPLICATION_DATA_PATH + template;
+                string targetDir = APPLICATION_USER_DATA_PATH + template;
+                File.Copy(sourceDir, targetDir, true);
+            }
+        }
+
         private void WriteInitialData(Dictionary<string, FileStream> fileDict)
         {
-            FileStream userSettingsFS = fileDict[ProgramConstants.USER_SETTINGS_FILENAME];
-            FileStream serverListFS = fileDict[ProgramConstants.KNOWN_SERVERS_FILENAME];
+            FileStream userSettingsFS = fileDict[USER_SETTINGS_FILENAME];
+            FileStream serverListFS = fileDict[KNOWN_SERVERS_FILENAME];
 
             using (var writer = new StreamWriter(serverListFS))
             {
@@ -111,11 +134,11 @@ namespace PalworldServerManager
             bool hasSettings = false;
             string serverPath = GetFullServerPath(server);
 
-            using (FileStream fs = File.OpenRead(serverPath + ProgramConstants.PAL_SERVER_CONFIG_PATH))
+            using (FileStream fs = File.OpenRead(serverPath + PAL_SERVER_CONFIG_PATH))
             using (StreamReader reader = new StreamReader(fs))
             {
                 string firstLineComment = reader.ReadLine();
-                if (firstLineComment != null && firstLineComment[0] == ProgramConstants.PAL_CONFIG_COMMENT_CHAR)
+                if (firstLineComment != null && firstLineComment[0] == PAL_CONFIG_COMMENT_CHAR)
                 {
                     hasSettings = true;
                 }
@@ -124,7 +147,7 @@ namespace PalworldServerManager
             if(!hasSettings)
             {
                 // Copy default settings file into server file
-                File.Copy(serverPath + ProgramConstants.PAL_DEFAULT_CONFIG_PATH, serverPath + ProgramConstants.PAL_SERVER_CONFIG_PATH, true);
+                File.Copy(serverPath + PAL_DEFAULT_CONFIG_PATH, serverPath + PAL_SERVER_CONFIG_PATH, true);
             }
         }
 
@@ -140,7 +163,7 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["steamInstallDir"] = setupForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = setupForm.defaultServerInstallPath;
 
-                userSettings.WriteUserSettings(ProgramConstants.APPLICATION_DATA_PATH + ProgramConstants.USER_SETTINGS_FILENAME);
+                userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
             }
             else
             {
@@ -169,10 +192,10 @@ namespace PalworldServerManager
 
                 string fullPath = process.MainModule.FileName;
 
-                if(fullPath.Contains(ProgramConstants.PAL_SERVER_DIRECTORY_SUBSTRING)) // this substring is unique to the generated directory name
+                if(fullPath.Contains(PAL_SERVER_DIRECTORY_SUBSTRING)) // this substring is unique to the generated directory name
                 {
                     // Split the path into 2 strings at the indicated substring
-                    string[] pathSplitChars = { ProgramConstants.PAL_SERVER_DIRECTORY_SUBSTRING };
+                    string[] pathSplitChars = { PAL_SERVER_DIRECTORY_SUBSTRING };
                     string[] splitPath = fullPath.Split(pathSplitChars, StringSplitOptions.None);
 
                     // Split the result of the above into all the subdirectories. The first element will be the name of the server, as generated
@@ -189,7 +212,7 @@ namespace PalworldServerManager
 
         private void LoadRunningServers()
         {
-            Process[] serverProcs = Process.GetProcessesByName(ProgramConstants.SERVER_PROCESS_NAME);
+            Process[] serverProcs = Process.GetProcessesByName(SERVER_PROCESS_NAME);
             Dictionary<string, int> serverProcNames = GetServerNamesAndPIDs(serverProcs);
 
             for (int idx = 0; idx < knownServers.Count; idx++)
@@ -237,9 +260,9 @@ namespace PalworldServerManager
 
         private void UpdateAndRefreshCSV()
         {
-            ServerDataTable.WriteAllServersToCSV(knownServers, ProgramConstants.KNOWN_SERVER_PATH);
+            ServerDataTable.WriteAllServersToCSV(knownServers, KNOWN_SERVER_PATH);
 
-            LoadCSVOnDataGridView(ProgramConstants.KNOWN_SERVER_PATH);
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
 
             dataGridView1.Update();
             dataGridView1.Refresh();
@@ -247,9 +270,9 @@ namespace PalworldServerManager
 
         private void UpdateAndRefreshCSV(KnownServer newServer)
         {
-            ServerDataTable.WriteServerToCSV(newServer, ProgramConstants.KNOWN_SERVER_PATH);
+            ServerDataTable.WriteServerToCSV(newServer, KNOWN_SERVER_PATH);
 
-            LoadCSVOnDataGridView(ProgramConstants.KNOWN_SERVER_PATH);
+            LoadCSVOnDataGridView(KNOWN_SERVER_PATH);
 
             dataGridView1.Update();
             dataGridView1.Refresh();
@@ -262,7 +285,7 @@ namespace PalworldServerManager
                 string portStr = string.Format("port={0} ", server.ServerPort);
 
                 Process process = new Process();
-                process.StartInfo.FileName = GetFullServerPath(server) + ProgramConstants.SERVER_EXE_NAME;
+                process.StartInfo.FileName = GetFullServerPath(server) + SERVER_EXE_NAME;
                 process.StartInfo.Arguments = portStr + server.ServerLaunchArgs;
                 process.StartInfo.WorkingDirectory = GetFullServerPath(server);
 
@@ -360,7 +383,7 @@ namespace PalworldServerManager
 
                 knownServers.Add(newServer);
 
-                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + ProgramConstants.DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer), newServer);
+                CopyDirectoryRecursive(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME, GetFullServerPath(newServer), newServer);
 
                 TryWriteDefaultSettingsToServer(newServer);
 
@@ -430,7 +453,7 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["steamInstallDir"] = settingsForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = settingsForm.defaultServerInstallPath;
 
-                userSettings.WriteUserSettings(ProgramConstants.APPLICATION_DATA_PATH + ProgramConstants.USER_SETTINGS_FILENAME);
+                userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
             }
         }
 
@@ -542,7 +565,7 @@ namespace PalworldServerManager
             KnownServer selectedServer = GetSelectedServer();
 
             string serverPath = GetFullServerPath(selectedServer);
-            Process.Start(serverPath + ProgramConstants.PAL_SERVER_CONFIG_PATH);
+            Process.Start(serverPath + PAL_SERVER_CONFIG_PATH);
         }
 
         private void openDefaultSettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -550,13 +573,13 @@ namespace PalworldServerManager
             KnownServer selectedServer = GetSelectedServer();
 
             string serverPath = GetFullServerPath(selectedServer);
-            Process.Start(serverPath + ProgramConstants.PAL_DEFAULT_CONFIG_PATH);
+            Process.Start(serverPath + PAL_DEFAULT_CONFIG_PATH);
         }
         
         private void editGameConfigToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KnownServer selectedServer = GetSelectedServer();
-            EditGameSettingsForm editForm = new EditGameSettingsForm(GetFullServerPath(selectedServer) + ProgramConstants.PAL_SERVER_CONFIG_PATH);
+            EditGameSettingsForm editForm = new EditGameSettingsForm(GetFullServerPath(selectedServer) + PAL_SERVER_CONFIG_PATH);
 
             editForm.ShowDialog(this);
         }
