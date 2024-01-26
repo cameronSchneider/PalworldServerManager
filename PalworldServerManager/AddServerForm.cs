@@ -65,6 +65,12 @@ namespace PalworldServerManager
                 return false;
             }
 
+            if(MainForm.GetInstance().DoesServerNameExist(newServerName)) 
+            {
+                err = string.Format("Error: Server name {0} is already in use, please enter another.", newServerName);
+                return false;
+            }
+
             err = "";
             return true;
         }

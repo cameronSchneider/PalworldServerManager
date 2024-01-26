@@ -15,6 +15,26 @@ namespace PalworldServerManager
         public UserSettings userSettings = new UserSettings();
         public List<KnownServer> knownServers;
 
+        private static MainForm instance = null;
+
+        public static MainForm GetInstance()
+        {
+            return instance;
+        }
+
+        public bool DoesServerNameExist(string serverName)
+        {
+            foreach(KnownServer server in knownServers)
+            {
+                if(server.ServerName == serverName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string GetFullServerPath(KnownServer server)
         {
             return server.ServerPath + ProgramConstants.DEFAULT_PAL_SERVER_DIR_NAME + " - " + server.ServerName;
@@ -27,6 +47,11 @@ namespace PalworldServerManager
 
         public MainForm()
         {
+            if(instance == null)
+            {
+                instance = this;
+            }
+
             InitializeComponent();
 
             // Only in dev environment where build changes frequently. Release builds will always come with Data dir.
