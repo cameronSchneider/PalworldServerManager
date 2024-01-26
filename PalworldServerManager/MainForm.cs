@@ -432,10 +432,20 @@ namespace PalworldServerManager
             }
         }
 
+        private bool AreDirectoriesAtSameLevel(string dir1, string dir2)
+        {
+            DirectoryInfo info1 = new DirectoryInfo(dir1);
+            DirectoryInfo info2 = new DirectoryInfo(dir2);
+            return info1.Parent.FullName == info2.Parent.FullName;
+        }
+
         private bool CopyDirectoryRecursive(string sourceDir, string targetDir)
         {
-            if(Directory.Exists(targetDir))
+            // If we're trying to copy but targetDir is already in sourceDir, just rename.
+            // e.g. sourceDir = C:\PalworldServers\Server1 and targetDir = C:\PalworldServers
+            if (AreDirectoriesAtSameLevel(targetDir, sourceDir))
             {
+                Directory.Move(sourceDir, targetDir);
                 return false;
             }
 
