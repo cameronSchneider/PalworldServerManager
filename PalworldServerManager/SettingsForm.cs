@@ -9,15 +9,18 @@ namespace PalworldServerManager
     {
         public string steamInstallPath = "";
         public string defaultServerInstallPath = "";
+        public string steamCmdInstallPath = "";
 
         public SettingsForm(UserSettings settings)
         {
             InitializeComponent();
 
             steamInstallPath = settings.userSettingsDict["steamInstallDir"];
+            steamCmdInstallPath = settings.userSettingsDict["steamCmdInstallDir"];
             defaultServerInstallPath = settings.userSettingsDict["defaultServerDir"];
 
             steamText.Text = steamInstallPath;
+            steamCmdTxt.Text = steamCmdInstallPath;
             installText.Text = defaultServerInstallPath;
         }
 
@@ -34,7 +37,13 @@ namespace PalworldServerManager
                 return false;
             }
 
-            if(defaultServerInstallPath == "")
+            if(steamCmdInstallPath == "")
+            {
+                err = "Error: SteamCmd install path cannot be empty!";
+                return false;
+            }
+
+            if (defaultServerInstallPath == "")
             {
                 err = "Error: Default install path cannot be empty!";
                 return false;
@@ -62,17 +71,44 @@ namespace PalworldServerManager
             }
         }
 
+        private DialogResult ShowSteamCmdWarningIfNeeded()
+        {
+            string warningMsg = "WARNING: This application requires the usage of SteamCMD for server install & updates, a tool by Valve that is a command-line version of the Steam Client.\n" +
+            "This application will auto-install SteamCMD to the specified directory if it is not already installed there.\n" +
+            "Press Yes to continue, or Cancel to abort.";
+
+            return MessageBox.Show(warningMsg, "WARNING", MessageBoxButtons.OKCancel);
+        }
+
         private void completeBtn_Click(object sender, EventArgs e)
         {
             string validationErr = "";
             if (ValidateSettings(out validationErr))
             {
-                Close();
-                DialogResult = DialogResult.OK;
+                DialogResult result = ShowSteamCmdWarningIfNeeded();
+                if (result == DialogResult.OK) 
+                {
+                    Close();
+                    DialogResult = DialogResult.OK;
+                }
+                else
+                {
+                    Close();
+                    DialogResult = DialogResult.Abort;
+                }
             }
             else
             {
                 errorText.Text = validationErr;
+            }
+        }
+
+        private void steamCmdBtn_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                steamCmdInstallPath = folderBrowserDialog1.SelectedPath;
+                steamCmdTxt.Text = steamCmdInstallPath;
             }
         }
     }

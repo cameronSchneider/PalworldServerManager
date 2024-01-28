@@ -53,8 +53,8 @@
             this.contextMenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openDefaultSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editGameConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -79,13 +79,14 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2);
             this.tableLayoutPanel1.Controls.Add(this.dataGridView1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 37);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(4, 42);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 77.77778F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 22.22222F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1045, 568);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1218, 657);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel2
@@ -98,7 +99,8 @@
             this.tableLayoutPanel2.Controls.Add(this.removeServerBtn, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.editServerBtn, 0, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 3);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 5;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
@@ -106,16 +108,17 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(150, 435);
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(174, 505);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
             // startServerBtn
             // 
             this.startServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.startServerBtn.Location = new System.Drawing.Point(3, 3);
+            this.startServerBtn.Location = new System.Drawing.Point(4, 3);
+            this.startServerBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.startServerBtn.Name = "startServerBtn";
-            this.startServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.startServerBtn.Size = new System.Drawing.Size(166, 95);
             this.startServerBtn.TabIndex = 0;
             this.startServerBtn.Text = "Start Selected Server";
             this.startServerBtn.UseVisualStyleBackColor = true;
@@ -124,9 +127,10 @@
             // stopServerBtn
             // 
             this.stopServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stopServerBtn.Location = new System.Drawing.Point(3, 90);
+            this.stopServerBtn.Location = new System.Drawing.Point(4, 104);
+            this.stopServerBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.stopServerBtn.Name = "stopServerBtn";
-            this.stopServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.stopServerBtn.Size = new System.Drawing.Size(166, 95);
             this.stopServerBtn.TabIndex = 1;
             this.stopServerBtn.Text = "Stop Selected Server";
             this.stopServerBtn.UseVisualStyleBackColor = true;
@@ -135,9 +139,10 @@
             // addServerBtn
             // 
             this.addServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.addServerBtn.Location = new System.Drawing.Point(3, 177);
+            this.addServerBtn.Location = new System.Drawing.Point(4, 205);
+            this.addServerBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.addServerBtn.Name = "addServerBtn";
-            this.addServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.addServerBtn.Size = new System.Drawing.Size(166, 95);
             this.addServerBtn.TabIndex = 2;
             this.addServerBtn.Text = "Add Server";
             this.addServerBtn.UseVisualStyleBackColor = true;
@@ -146,9 +151,10 @@
             // removeServerBtn
             // 
             this.removeServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.removeServerBtn.Location = new System.Drawing.Point(3, 351);
+            this.removeServerBtn.Location = new System.Drawing.Point(4, 407);
+            this.removeServerBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.removeServerBtn.Name = "removeServerBtn";
-            this.removeServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.removeServerBtn.Size = new System.Drawing.Size(166, 95);
             this.removeServerBtn.TabIndex = 3;
             this.removeServerBtn.Text = "Remove Selected Server";
             this.removeServerBtn.UseVisualStyleBackColor = true;
@@ -157,9 +163,10 @@
             // editServerBtn
             // 
             this.editServerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editServerBtn.Location = new System.Drawing.Point(3, 264);
+            this.editServerBtn.Location = new System.Drawing.Point(4, 306);
+            this.editServerBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.editServerBtn.Name = "editServerBtn";
-            this.editServerBtn.Size = new System.Drawing.Size(144, 81);
+            this.editServerBtn.Size = new System.Drawing.Size(166, 95);
             this.editServerBtn.TabIndex = 4;
             this.editServerBtn.Text = "Edit Selected Server";
             this.editServerBtn.UseVisualStyleBackColor = true;
@@ -173,12 +180,13 @@
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(159, 3);
+            this.dataGridView1.Location = new System.Drawing.Point(186, 3);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(883, 435);
+            this.dataGridView1.Size = new System.Drawing.Size(1028, 505);
             this.dataGridView1.TabIndex = 1;
             // 
             // tableLayoutPanel3
@@ -189,11 +197,13 @@
             this.tableLayoutPanel3.Controls.Add(this.menuStrip1, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5.660377F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 94.33963F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(1051, 608);
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(1226, 702);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
             // menuStrip1
@@ -203,7 +213,8 @@
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1051, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1226, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -258,7 +269,6 @@
             // versionTextBox
             // 
             this.versionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.versionTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.versionTextBox.Name = "versionTextBox";
             this.versionTextBox.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
             this.versionTextBox.ReadOnly = true;
@@ -314,6 +324,13 @@
             this.openFileLocationToolStripMenuItem.Text = "Open File Location";
             this.openFileLocationToolStripMenuItem.Click += new System.EventHandler(this.openFileLocationToolStripMenuItem_Click);
             // 
+            // openDefaultSettingsToolStripMenuItem
+            // 
+            this.openDefaultSettingsToolStripMenuItem.Name = "openDefaultSettingsToolStripMenuItem";
+            this.openDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.openDefaultSettingsToolStripMenuItem.Text = "Open Default Config";
+            this.openDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.openDefaultSettingsToolStripMenuItem_Click);
+            // 
             // openConfigToolStripMenuItem
             // 
             this.openConfigToolStripMenuItem.Name = "openConfigToolStripMenuItem";
@@ -321,13 +338,6 @@
             this.openConfigToolStripMenuItem.Text = "Open Config";
             this.openConfigToolStripMenuItem.ToolTipText = "Server must run once to use this option.";
             this.openConfigToolStripMenuItem.Click += new System.EventHandler(this.openConfigToolStripMenuItem_Click);
-            // 
-            // openDefaultSettingsToolStripMenuItem
-            // 
-            this.openDefaultSettingsToolStripMenuItem.Name = "openDefaultSettingsToolStripMenuItem";
-            this.openDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.openDefaultSettingsToolStripMenuItem.Text = "Open Default Config";
-            this.openDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.openDefaultSettingsToolStripMenuItem_Click);
             // 
             // editGameConfigToolStripMenuItem
             // 
@@ -339,10 +349,11 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1051, 608);
+            this.ClientSize = new System.Drawing.Size(1226, 702);
             this.Controls.Add(this.tableLayoutPanel3);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "MainForm";
             this.Text = "Palworld Server Manager";
             this.tableLayoutPanel1.ResumeLayout(false);

@@ -10,12 +10,14 @@ using System.Windows.Forms;
 using System.Threading;
 using static PalworldServerManager.ProgramConstants;
 using System.Threading.Tasks;
+using PalworldServerManager.SteamCmdUtils;
 
 namespace PalworldServerManager
 {
     public partial class MainForm : Form
     {
         public UserSettings userSettings = new UserSettings();
+        public SteamCmd steamCmd = null;
         public List<KnownServer> knownServers;
 
         private static MainForm instance = null;
@@ -92,15 +94,11 @@ namespace PalworldServerManager
 
             LoadRunningServers();
 
-            // Ensure default PalServer still exists, otherwise force them to retry setup
-            if (userSettings.userSettingsDict["steamInstallDir"] != "" && !Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME))
+            // Ensure steamcmd install still exists, otherwise force them to retry setup
+            if (userSettings.userSettingsDict["steamCmdInstallDir"] == "" || !Directory.Exists(userSettings.userSettingsDict["steamCmdInstallDir"]))
             {
+                userSettings.userSettingsDict["steamCmdInstallDir"] = "";
                 userSettings.userSettingsDict["completedSetup"] = "false";
-            }
-
-            if(userSettings.userSettingsDict["steamInstallDir"] != "" && Directory.Exists(userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_DIR_NAME))
-            {
-                DeleteDefaultSteamWorldIfExists();
             }
 
             if (userSettings.userSettingsDict["completedSetup"] == "false")
@@ -108,10 +106,38 @@ namespace PalworldServerManager
                 HandleInitialSetup();
             }
 
+            SetupSteamCmd();
+
             System.Windows.Forms.Timer updater = new System.Windows.Forms.Timer();
             updater.Interval = 500; //ms
             updater.Tick += Update;
             updater.Start();
+        }
+
+        private async void SetupSteamCmd()
+        {
+            steamCmd = new SteamCmd(userSettings.userSettingsDict["steamCmdInstallDir"]);
+
+            if(!steamCmd.IsSteamCmdInstalled())
+            {
+                ProgressBarForm progress = new ProgressBarForm("Install Progress");
+                progress.Show(this);
+                progress.Center();
+                SetControlEnable(false);
+
+                await steamCmd.InstallSteamCmd(progress);
+
+                progress.Close();
+                SetControlEnable(true);
+            }
+        }
+
+        private void SetControlEnable(bool value)
+        {
+            foreach(Control c in Controls)
+            {
+                c.Enabled = value;
+            }
         }
 
         private void SetupUserAppData()
@@ -186,8 +212,7 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["completedSetup"] = "true";
                 userSettings.userSettingsDict["steamInstallDir"] = setupForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = setupForm.defaultServerInstallPath;
-
-                DeleteDefaultSteamWorldIfExists();
+                userSettings.userSettingsDict["steamCmdInstallDir"] = setupForm.steamCmdInstallPath;
 
                 userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
             }
@@ -309,30 +334,6 @@ namespace PalworldServerManager
             }
         }
 
-        private void DeleteDefaultSteamWorldIfExists()
-        {
-            string steamWorldPath = userSettings.userSettingsDict["steamInstallDir"] + DEFAULT_PAL_SERVER_WORLD_PATH;
-
-            if(Directory.Exists(steamWorldPath))
-            {
-                if(MessageBox.Show("WARNING: An existing world has been found in your default Steam server!" +
-                    "\n Continuing will delete that world. Cancel to make a backup, then retry setup.", "Confirm", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                {
-                    Directory.Delete(steamWorldPath, true);
-                }
-                else
-                {
-                    if (Application.MessageLoop)
-                    {
-                        Application.Exit();
-                    }
-                    else
-                    {
-                        Environment.Exit(1);
-                    }
-                }
-            }
-        }
 
         private void LoadCSVOnDataGridView(string fileName)
         {
@@ -593,8 +594,7 @@ namespace PalworldServerManager
                 userSettings.userSettingsDict["completedSetup"] = "true";
                 userSettings.userSettingsDict["steamInstallDir"] = settingsForm.steamInstallPath;
                 userSettings.userSettingsDict["defaultServerDir"] = settingsForm.defaultServerInstallPath;
-
-                DeleteDefaultSteamWorldIfExists();
+                userSettings.userSettingsDict["steamCmdInstallDir"] = settingsForm.steamCmdInstallPath;
 
                 userSettings.WriteUserSettings(APPLICATION_USER_DATA_PATH + USER_SETTINGS_FILENAME);
             }
@@ -729,7 +729,10 @@ namespace PalworldServerManager
             KnownServer selectedServer = GetSelectedServer();
 
             string serverPath = GetFullServerPath(selectedServer);
-            Process.Start(serverPath);
+            Process process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = serverPath;
+            process.Start();
         }
 
         private void openConfigToolStripMenuItem_Click(object sender, EventArgs e)
@@ -737,7 +740,10 @@ namespace PalworldServerManager
             KnownServer selectedServer = GetSelectedServer();
 
             string serverPath = GetFullServerPath(selectedServer);
-            Process.Start(serverPath + PAL_SERVER_CONFIG_PATH);
+            Process process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = serverPath + PAL_SERVER_CONFIG_PATH;
+            process.Start();
         }
 
         private void openDefaultSettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -745,7 +751,10 @@ namespace PalworldServerManager
             KnownServer selectedServer = GetSelectedServer();
 
             string serverPath = GetFullServerPath(selectedServer);
-            Process.Start(serverPath + PAL_DEFAULT_CONFIG_PATH);
+            Process process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = serverPath + PAL_DEFAULT_CONFIG_PATH;
+            process.Start();
         }
         
         private void editGameConfigToolStripMenuItem_Click(object sender, EventArgs e)

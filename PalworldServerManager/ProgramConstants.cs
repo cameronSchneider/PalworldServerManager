@@ -26,5 +26,11 @@ namespace PalworldServerManager
 
         public static readonly string PAL_GAME_SETTING_OPTIONS_FILE = "game_settings_options.csv";
         public static readonly string PAL_GAME_SETTING_DESCRIPTIONS_FILE = "game_settings_descriptions.csv";
+        public static readonly string PAL_RCON_COMMANDS_FILE = "rcon_commands.csv";
+
+        public static readonly string STEAM_CMD_OUTPUT_DIR = "\\steam_output\\";
+        public static readonly string STEAM_CMD_INSTALL_LINK = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
+        public static readonly string STEAM_CMD_EXE_NAME = "\\steamcmd.exe";
+        public static readonly string STEAM_CMD_ZIP_NAME = "\\steamcmd.zip";
     }
 }
